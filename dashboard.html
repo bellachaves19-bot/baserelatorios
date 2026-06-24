@@ -6,342 +6,511 @@
 <title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  /* ── FIUS Brand Colors ── */
   :root {
-    --azul-fius:   #009edb;
-    --azul-escuro: #004561;
-    --marinho:     #111d30;
-    --marinho2:    #152339;
-    --marinho3:    #21305a;
-    --chumbo:      #282a2b;
-    --cinza:       #6d6e71;
-    --cinza-claro: #f3f3f3;
-    --branco:      #ffffff;
-    /* Cores complementares */
-    --roxo:        #494092;
-    --azul-medio:  #304f9d;
-    --teal:        #68c4d4;
-    --verde:       #58b031;
-    --verde2:      #8ebf22;
-    --amarelo:     #efc517;
-    --vermelho:    #bb274b;
-    --laranja:     #ea5627;
-    --magenta:     #ac1b82;
+    --fius:      #009edb;
+    --fius-dark: #0096da;
+    --navy:      #111d30;
+    --navy2:     #152339;
+    --navy3:     #1a2b45;
+    --navy4:     #21305a;
+    --steel:     #004561;
+    --gray:      #6d6e71;
+    --gray-light:#f3f3f3;
+    --white:     #ffffff;
+    --teal:      #68c4d4;
+    --purple:    #494092;
+    --blue-mid:  #304f9d;
+    --green:     #8ebf22;
+    --green2:    #58b031;
+    --yellow:    #efc517;
+    --orange:    #ea5627;
+    --red:       #bb274b;
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--marinho);
-    color: var(--branco);
+    background: var(--navy);
+    color: var(--white);
     font-family: Verdana, Geneva, sans-serif;
     font-size: 13px;
+    line-height: 1.5;
     min-height: 100vh;
   }
 
-  /* ── Header ── */
+  /* ─── HEADER ─────────────────────────────────────────── */
   header {
-    background: var(--marinho2);
-    border-bottom: 3px solid var(--azul-fius);
-    padding: 20px 32px;
+    background: var(--navy2);
+    border-bottom: 1px solid rgba(0,158,219,.2);
+    padding: 0 40px;
+    height: 70px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,.4);
   }
-  .logo-box {
-    width: 48px; height: 48px;
-    background: var(--azul-fius);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 20px; color: var(--branco);
-    letter-spacing: -1px; flex-shrink: 0;
-    font-family: Verdana, sans-serif;
+
+  /* SVG logo container */
+  .logo-wrap { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .logo-svg  { width: 44px; height: 44px; }
+
+  .logo-divider {
+    width: 1px; height: 32px;
+    background: rgba(0,158,219,.3);
   }
-  .header-text h1 {
-    font-size: 18px; font-weight: 700;
-    color: var(--branco); letter-spacing: -0.3px;
+  .header-titles h1 {
+    font-size: 15px; font-weight: 700; color: var(--white);
+    letter-spacing: -.2px; line-height: 1.2;
   }
-  .header-text p { color: var(--teal); font-size: 12px; margin-top: 3px; }
-  .header-badge {
+  .header-titles p {
+    font-size: 10px; color: var(--teal); letter-spacing: .3px;
+    margin-top: 2px;
+  }
+
+  .header-right {
     margin-left: auto;
-    background: rgba(0,158,219,.15);
-    border: 1px solid rgba(0,158,219,.4);
-    color: var(--azul-fius);
-    padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .badge {
+    background: rgba(0,158,219,.12);
+    border: 1px solid rgba(0,158,219,.35);
+    color: var(--fius);
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .badge-dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--green); border-radius: 50;
+    margin-right: 6px; border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .3; }
+  }
+
+  /* ─── CONTAINER ──────────────────────────────────────── */
+  .container { max-width: 1380px; margin: 0 auto; padding: 28px 40px 40px; }
+
+  /* ─── SECTION TITLE ──────────────────────────────────── */
+  .section-title {
+    font-size: 10px; font-weight: 700; color: var(--fius);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, rgba(0,158,219,.3), transparent);
+  }
+
+  /* ─── KPI CARDS ──────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 22px 22px 18px;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .kpi:hover { border-color: rgba(0,158,219,.4); transform: translateY(-2px); }
+  .kpi-top-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 12px 12px 0 0;
+    background: var(--bar-color, var(--fius));
+  }
+  .kpi-bg-icon {
+    position: absolute; bottom: -12px; right: -8px;
+    font-size: 64px; line-height: 1;
+    opacity: .04; user-select: none; pointer-events: none;
+  }
+  .kpi-label {
+    font-size: 10px; font-weight: 700; color: var(--gray);
+    text-transform: uppercase; letter-spacing: .7px;
+  }
+  .kpi-value {
+    font-size: 42px; font-weight: 700; line-height: 1;
+    color: var(--bar-color, var(--fius));
+    margin: 10px 0 6px;
+  }
+  .kpi-sub { font-size: 10px; color: var(--gray); }
+
+  /* ─── CHARTS GRID ────────────────────────────────────── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .chart-card {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 22px 24px;
+  }
+  .chart-card.wide { grid-column: span 2; }
+
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px;
+  }
+  .card-header-bar {
+    width: 3px; height: 16px;
+    background: var(--fius); border-radius: 2px; flex-shrink: 0;
+  }
+  .card-header h3 {
+    font-size: 11px; font-weight: 700; color: var(--white);
+    text-transform: uppercase; letter-spacing: .8px;
+  }
+  .card-header .card-count {
+    margin-left: auto;
+    font-size: 11px; color: var(--gray); font-weight: 700;
+  }
+
+  .chart-wrap   { position: relative; height: 220px; }
+
+  /* ─── LEGEND ─────────────────────────────────────────── */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--gray); }
+  .legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ─── AREA BARS ──────────────────────────────────────── */
+  .area-list { display: flex; flex-direction: column; gap: 8px; }
+  .area-row  { display: flex; align-items: center; gap: 12px; }
+  .area-name { width: 210px; font-size: 11px; color: rgba(243,243,243,.8); text-align: right; flex-shrink: 0; }
+  .area-track{ flex: 1; background: rgba(255,255,255,.06); border-radius: 4px; height: 18px; overflow: hidden; }
+  .area-fill {
+    height: 100%; border-radius: 4px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 10px; font-weight: 700; color: rgba(255,255,255,.9);
+    min-width: 30px; transition: width .6s ease;
+  }
+  .area-num  { width: 32px; font-size: 11px; color: var(--gray); font-weight: 700; text-align: right; flex-shrink: 0; }
+
+  /* ─── TABLE CARD ─────────────────────────────────────── */
+  .table-card {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-top: 14px;
+  }
+
+  .filters {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 18px; align-items: center;
+  }
+  .filter-wrap { position: relative; }
+  .filter-wrap .filter-icon {
+    position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%); color: var(--gray); font-size: 12px;
+    pointer-events: none;
+  }
+  .filters input, .filters select {
+    background: var(--navy3);
+    border: 1px solid rgba(255,255,255,.1);
+    color: var(--white);
+    padding: 8px 12px 8px 30px;
+    border-radius: 8px; font-size: 11px;
+    font-family: Verdana, sans-serif;
+    outline: none; appearance: none;
+    transition: border-color .2s;
+  }
+  .filters input  { flex: 1; min-width: 220px; }
+  .filters select { min-width: 180px; cursor: pointer; padding-right: 28px; }
+  .filters input:focus, .filters select:focus { border-color: var(--fius); }
+  .filters input::placeholder { color: var(--gray); }
+  .filter-count {
+    margin-left: auto; font-size: 11px; color: var(--gray);
     white-space: nowrap;
   }
 
-  /* ── Layout ── */
-  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
-
-  /* ── KPI Cards ── */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
-  .kpi {
-    background: var(--marinho2);
-    border: 1px solid rgba(0,158,219,.2);
-    border-radius: 10px;
-    padding: 20px 22px;
-    position: relative; overflow: hidden;
+  table { width: 100%; border-collapse: collapse; }
+  thead tr {
+    border-bottom: 2px solid rgba(0,158,219,.25);
   }
-  .kpi::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--kpi-color, var(--azul-fius));
-  }
-  .kpi::after {
-    content: '';
-    position: absolute; top: -30px; right: -20px;
-    width: 100px; height: 100px;
-    background: var(--kpi-color, var(--azul-fius));
-    opacity: .05; border-radius: 50%;
-  }
-  .kpi .label { color: var(--cinza); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
-  .kpi .value { font-size: 38px; font-weight: 700; color: var(--branco); margin: 8px 0 4px; line-height: 1; }
-  .kpi .value span { color: var(--kpi-color, var(--azul-fius)); }
-  .kpi .sub { color: var(--cinza); font-size: 11px; }
-
-  /* ── Charts ── */
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .chart-card {
-    background: var(--marinho2);
-    border: 1px solid rgba(0,158,219,.15);
-    border-radius: 10px; padding: 22px;
-  }
-  .chart-card.wide { grid-column: span 2; }
-  .chart-card h3 {
-    font-size: 11px; font-weight: 700; color: var(--azul-fius);
-    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 18px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .chart-card h3::before {
-    content: '';
-    display: inline-block; width: 3px; height: 14px;
-    background: var(--azul-fius); border-radius: 2px;
-  }
-  .chart-wrap { position: relative; height: 230px; }
-  .chart-wrap.tall { height: 280px; }
-
-  /* ── Legend ── */
-  .legend-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--cinza); }
-  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-
-  /* ── Area Bars ── */
-  .area-bars { padding-top: 4px; }
-  .area-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
-  .area-name { width: 200px; font-size: 11px; color: var(--cinza-claro); flex-shrink: 0; text-align: right; }
-  .area-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 3px; height: 16px; overflow: hidden; }
-  .area-bar { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: #fff; min-width: 24px; }
-  .area-count { width: 30px; font-size: 11px; color: var(--cinza); text-align: right; flex-shrink: 0; font-weight: 700; }
-
-  /* ── Table ── */
-  .table-card {
-    background: var(--marinho2);
-    border: 1px solid rgba(0,158,219,.15);
-    border-radius: 10px; padding: 22px; margin-bottom: 24px;
-  }
-  .table-card h3 {
-    font-size: 11px; font-weight: 700; color: var(--azul-fius);
-    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 18px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .table-card h3::before {
-    content: ''; display: inline-block; width: 3px; height: 14px;
-    background: var(--azul-fius); border-radius: 2px;
-  }
-  .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
-  .filters input, .filters select {
-    background: var(--marinho3);
-    border: 1px solid rgba(0,158,219,.25);
-    color: var(--branco); padding: 7px 12px;
-    border-radius: 6px; font-size: 12px; outline: none;
-    font-family: Verdana, sans-serif;
-  }
-  .filters input { flex: 1; min-width: 200px; }
-  .filters input:focus, .filters select:focus { border-color: var(--azul-fius); }
-  .filters input::placeholder { color: var(--cinza); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
   thead th {
-    color: var(--cinza); font-weight: 700; text-align: left;
-    padding: 9px 12px; border-bottom: 1px solid rgba(0,158,219,.2);
-    font-size: 10px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+    font-size: 10px; font-weight: 700; color: var(--gray);
+    text-transform: uppercase; letter-spacing: .6px;
+    padding: 8px 14px; text-align: left; white-space: nowrap;
   }
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,.05); transition: background .12s; }
-  tbody tr:hover { background: rgba(0,158,219,.06); }
-  tbody td { padding: 9px 12px; vertical-align: middle; }
-  tbody td.muted { color: var(--cinza); }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .12s; }
+  tbody tr:hover { background: rgba(0,158,219,.05); }
+  tbody td { padding: 10px 14px; vertical-align: middle; }
 
-  /* Tags categoria */
-  .tag { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .tag.cx   { background: rgba(0,158,219,.15); color: #009edb; border: 1px solid rgba(0,158,219,.4); }
-  .tag.trab { background: rgba(73,64,146,.2);  color: #8b84d6; border: 1px solid rgba(73,64,146,.4); }
-  .tag.mt   { background: rgba(104,196,212,.15); color: #68c4d4; border: 1px solid rgba(104,196,212,.3); }
-  .tag.mc   { background: rgba(48,79,157,.2);  color: #7090d8; border: 1px solid rgba(48,79,157,.4); }
-  .tag.au   { background: rgba(109,110,113,.15); color: #9d9ea0; border: 1px solid rgba(109,110,113,.3); }
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; white-space: nowrap;
+  }
+  .tag.cx   { background: rgba(0,158,219,.12);  color: #009edb; border: 1px solid rgba(0,158,219,.3); }
+  .tag.trab { background: rgba(73,64,146,.18);  color: #8b84d6; border: 1px solid rgba(73,64,146,.35); }
+  .tag.mt   { background: rgba(104,196,212,.12);color: #68c4d4; border: 1px solid rgba(104,196,212,.3); }
+  .tag.mc   { background: rgba(48,79,157,.18);  color: #7090d8; border: 1px solid rgba(48,79,157,.35); }
+  .tag.au   { background: rgba(109,110,113,.12);color: #9d9ea0; border: 1px solid rgba(109,110,113,.3); }
 
-  /* Tags envio */
-  .envio-tag { display: inline-flex; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-  .envio-cj   { background: rgba(0,158,219,.15); color: #009edb; border: 1px solid rgba(0,158,219,.3); }
-  .envio-trab { background: rgba(142,191,34,.15); color: #8ebf22; border: 1px solid rgba(142,191,34,.3); }
-  .envio-both { background: rgba(239,197,23,.15); color: #efc517; border: 1px solid rgba(239,197,23,.3); }
+  .etag {
+    display: inline-flex; padding: 3px 9px;
+    border-radius: 20px; font-size: 10px; font-weight: 700;
+  }
+  .ecj   { background: rgba(0,158,219,.12);  color: #009edb; border: 1px solid rgba(0,158,219,.3); }
+  .etrab { background: rgba(142,191,34,.12); color: #8ebf22; border: 1px solid rgba(142,191,34,.3); }
+  .eboth { background: rgba(239,197,23,.12); color: #efc517; border: 1px solid rgba(239,197,23,.3); }
 
-  /* Pagination */
-  .pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
-  .pagination span { color: var(--cinza); font-size: 11px; }
+  .nr-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(0,158,219,.12); border: 1px solid rgba(0,158,219,.25);
+    font-size: 11px; font-weight: 700; color: var(--fius);
+  }
+
+  .pagination {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-top: 18px;
+    padding-top: 14px; border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .pagination-info { font-size: 11px; color: var(--gray); }
   .page-btns { display: flex; gap: 6px; }
   .page-btn {
-    background: var(--marinho3); border: 1px solid rgba(0,158,219,.25);
-    color: var(--branco); padding: 6px 14px; border-radius: 6px;
-    cursor: pointer; font-size: 12px; font-family: Verdana, sans-serif;
-    transition: all .15s;
+    background: var(--navy3); border: 1px solid rgba(255,255,255,.1);
+    color: var(--white); padding: 7px 16px; border-radius: 7px;
+    cursor: pointer; font-size: 11px; font-family: Verdana, sans-serif;
+    font-weight: 700; transition: all .15s; letter-spacing: .3px;
   }
-  .page-btn:hover { background: var(--azul-fius); border-color: var(--azul-fius); }
-  .page-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .page-btn:hover:not(:disabled) { background: var(--fius); border-color: var(--fius); }
+  .page-btn:disabled { opacity: .25; cursor: not-allowed; }
 
-  /* ── Footer ── */
+  /* ─── FOOTER ─────────────────────────────────────────── */
   footer {
-    text-align: center; padding: 20px 32px;
-    color: var(--cinza); font-size: 11px;
+    background: var(--navy2);
     border-top: 1px solid rgba(0,158,219,.15);
-    background: var(--marinho2);
+    padding: 20px 40px;
+    display: flex; align-items: center; gap: 16px;
   }
-  .divider { width: 40px; height: 2px; background: var(--azul-fius); margin: 0 auto 10px; border-radius: 2px; }
+  footer .footer-logo { width: 28px; height: 28px; opacity: .4; }
+  footer p { font-size: 10px; color: var(--gray); line-height: 1.6; }
+  footer .fius-link { color: var(--fius); text-decoration: none; font-weight: 700; }
 </style>
 </head>
 <body>
 
+<!-- ── HEADER ─────────────────────────────────────────────── -->
 <header>
-  <div class="logo-box">F|U</div>
-  <div class="header-text">
-    <h1>Volumetria de Relatórios · 2026</h1>
-    <p>Finocchio &amp; Ustra Advogados · Base: Smart Report — Configuração Contencioso</p>
+  <div class="logo-wrap">
+    <!-- FIUS Logo SVG — F+U estilizados formando um box, conforme manual -->
+    <svg class="logo-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Box externo -->
+      <rect x="1" y="1" width="42" height="42" rx="8" fill="#009edb"/>
+      <!-- Forma estilizada F+U -->
+      <!-- Barra horizontal superior do F -->
+      <rect x="9"  y="10" width="16" height="4" rx="1.5" fill="white"/>
+      <!-- Haste vertical do F -->
+      <rect x="9"  y="10" width="4"  height="24" rx="1.5" fill="white"/>
+      <!-- Barra horizontal meio do F -->
+      <rect x="9"  y="20" width="11" height="4" rx="1.5" fill="white"/>
+      <!-- U — haste esquerda -->
+      <rect x="24" y="10" width="4"  height="18" rx="1.5" fill="white"/>
+      <!-- U — haste direita -->
+      <rect x="32" y="10" width="4"  height="18" rx="1.5" fill="white"/>
+      <!-- U — base curva (simulada com rect arredondado) -->
+      <rect x="24" y="24" width="12" height="4" rx="2" fill="white"/>
+    </svg>
+    <div class="logo-divider"></div>
+    <div class="header-titles">
+      <h1>Volumetria de Relatórios</h1>
+      <p>FINOCCHIO &amp; USTRA ADVOGADOS · SMART REPORT</p>
+    </div>
   </div>
-  <div class="header-badge">Atualização: 24/06/2026</div>
+
+  <div class="header-right">
+    <div class="badge">
+      <span class="badge-dot"></span>2026
+    </div>
+    <div class="badge" style="color:#f3f3f3;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)">
+      Atualização: 24/06/2026
+    </div>
+  </div>
 </header>
 
+<!-- ── MAIN ───────────────────────────────────────────────── -->
 <div class="container">
 
   <!-- KPIs -->
+  <div class="section-title">Resumo Executivo</div>
   <div class="kpi-grid">
-    <div class="kpi" style="--kpi-color:#009edb">
-      <div class="label">Total de Clientes</div>
-      <div class="value"><span>255</span></div>
-      <div class="sub">5 categorias ativas</div>
+    <div class="kpi" style="--bar-color:#009edb">
+      <div class="kpi-top-bar"></div>
+      <div class="kpi-bg-icon">👥</div>
+      <div class="kpi-label">Total de Clientes</div>
+      <div class="kpi-value">255</div>
+      <div class="kpi-sub">5 categorias · Smart Report ativo</div>
     </div>
-    <div class="kpi" style="--kpi-color:#68c4d4">
-      <div class="label">Total de Providências</div>
-      <div class="value"><span>448</span></div>
-      <div class="sub">Cadastradas / ativas</div>
+    <div class="kpi" style="--bar-color:#68c4d4">
+      <div class="kpi-top-bar"></div>
+      <div class="kpi-bg-icon">📋</div>
+      <div class="kpi-label">Total de Providências</div>
+      <div class="kpi-value">448</div>
+      <div class="kpi-sub">Cadastradas e ativas na base</div>
     </div>
-    <div class="kpi" style="--kpi-color:#efc517">
-      <div class="label">Clientes CX — Cat. 1</div>
-      <div class="value"><span>36</span></div>
-      <div class="sub">Com Key Account dedicado</div>
+    <div class="kpi" style="--bar-color:#efc517">
+      <div class="kpi-top-bar"></div>
+      <div class="kpi-bg-icon">⭐</div>
+      <div class="kpi-label">Clientes CX — Cat. 1</div>
+      <div class="kpi-value">36</div>
+      <div class="kpi-sub">Com Key Account dedicado</div>
     </div>
-    <div class="kpi" style="--kpi-color:#8ebf22">
-      <div class="label">Envio Trabalhista</div>
-      <div class="value"><span>95</span></div>
-      <div class="sub">Fluxo diferenciado</div>
+    <div class="kpi" style="--bar-color:#8ebf22">
+      <div class="kpi-top-bar"></div>
+      <div class="kpi-bg-icon">⚖️</div>
+      <div class="kpi-label">Fluxo Trabalhista</div>
+      <div class="kpi-value">95</div>
+      <div class="kpi-sub">Envio diferenciado pela área</div>
     </div>
   </div>
 
-  <!-- Charts -->
+  <!-- Charts row 1 -->
+  <div class="section-title">Distribuição por Categoria e Envio</div>
   <div class="charts-grid">
+
     <div class="chart-card">
-      <h3>Clientes por Categoria</h3>
-      <div class="chart-wrap">
-        <canvas id="catChart"></canvas>
+      <div class="card-header">
+        <div class="card-header-bar"></div>
+        <h3>Clientes por Categoria</h3>
+        <span class="card-count">255 clientes</span>
       </div>
-      <div class="legend-grid" id="catLegend"></div>
+      <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+      <div class="legend" id="catLegend"></div>
     </div>
 
     <div class="chart-card">
-      <h3>Tipo de Envio</h3>
-      <div class="chart-wrap">
-        <canvas id="envioChart"></canvas>
+      <div class="card-header">
+        <div class="card-header-bar" style="background:#68c4d4"></div>
+        <h3>Tipo de Envio</h3>
+        <span class="card-count">255 clientes</span>
       </div>
-      <div class="legend-grid" id="envioLegend"></div>
+      <div class="chart-wrap"><canvas id="envioChart"></canvas></div>
+      <div class="legend" id="envioLegend"></div>
     </div>
 
     <div class="chart-card wide">
-      <h3>Providências por Área Jurídica</h3>
-      <div class="area-bars" id="areaBars"></div>
+      <div class="card-header">
+        <div class="card-header-bar" style="background:#8ebf22"></div>
+        <h3>Providências por Área Jurídica</h3>
+        <span class="card-count">448 providências</span>
+      </div>
+      <div class="area-list" id="areaBars"></div>
     </div>
+
   </div>
 
   <!-- Table -->
+  <div class="section-title">Painel de Clientes</div>
   <div class="table-card">
-    <h3>Painel de Clientes</h3>
     <div class="filters">
-      <input type="text" id="searchInput" placeholder="Buscar por cliente ou Key Account...">
-      <select id="catFilter">
-        <option value="">Todas as Categorias</option>
-        <option value="CX">★ Cat. 1 — CX</option>
-        <option value="Trabalhista">◆ Cat. 2 — Trabalhista</option>
-        <option value="Multi-área · Trabalhista">● Cat. 3 — Multi-área · Trab.</option>
-        <option value="Multi-área · C.J.">● Cat. 4 — Multi-área · C.J.</option>
-        <option value="Área única">○ Cat. 5 — Área única</option>
-      </select>
-      <select id="envioFilter">
-        <option value="">Todos os Envios</option>
-        <option value="C.J.">Somente C.J.</option>
-        <option value="Trabalhista">Somente Trabalhista</option>
-        <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
-      </select>
+      <div class="filter-wrap" style="flex:1">
+        <span class="filter-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar por cliente ou Key Account...">
+      </div>
+      <div class="filter-wrap">
+        <span class="filter-icon">🏷</span>
+        <select id="catFilter">
+          <option value="">Todas as Categorias</option>
+          <option value="CX">★ Cat. 1 — CX</option>
+          <option value="Trabalhista">◆ Cat. 2 — Trabalhista</option>
+          <option value="Multi-área · Trabalhista">● Cat. 3 — Multi-área · Trab.</option>
+          <option value="Multi-área · C.J.">● Cat. 4 — Multi-área · C.J.</option>
+          <option value="Área única">○ Cat. 5 — Área única</option>
+        </select>
+      </div>
+      <div class="filter-wrap">
+        <span class="filter-icon">📨</span>
+        <select id="envioFilter">
+          <option value="">Todos os Envios</option>
+          <option value="C.J.">Somente C.J.</option>
+          <option value="Trabalhista">Somente Trabalhista</option>
+          <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+        </select>
+      </div>
+      <span class="filter-count" id="filterCount"></span>
     </div>
+
     <div style="overflow-x:auto">
       <table>
         <thead>
           <tr>
-            <th>#</th>
+            <th style="width:40px">#</th>
             <th>Categoria</th>
             <th>Cliente</th>
             <th>Key Account</th>
             <th>Tipo de Envio</th>
-            <th style="text-align:center">Nº Áreas</th>
+            <th style="text-align:center;width:70px">Áreas</th>
           </tr>
         </thead>
         <tbody id="clientTable"></tbody>
       </table>
     </div>
+
     <div class="pagination">
-      <span id="pageInfo"></span>
+      <span class="pagination-info" id="pageInfo"></span>
       <div class="page-btns">
-        <button class="page-btn" id="btnPrev" onclick="changePage(-1)">← Anterior</button>
-        <button class="page-btn" id="btnNext" onclick="changePage(1)">Próximo →</button>
+        <button class="page-btn" id="btnPrev" onclick="changePage(-1)">&#8592; Anterior</button>
+        <button class="page-btn" id="btnNext" onclick="changePage(1)">Próximo &#8594;</button>
       </div>
     </div>
   </div>
 
 </div>
 
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
 <footer>
-  <div class="divider"></div>
-  Nota: a base de origem (Smart Report) lista providências atualmente cadastradas/ativas; não há marcação de "cancelado" nesta extração.
+  <svg class="footer-logo" viewBox="0 0 44 44" fill="none">
+    <rect x="1" y="1" width="42" height="42" rx="8" fill="#009edb"/>
+    <rect x="9"  y="10" width="16" height="4" rx="1.5" fill="white"/>
+    <rect x="9"  y="10" width="4"  height="24" rx="1.5" fill="white"/>
+    <rect x="9"  y="20" width="11" height="4" rx="1.5" fill="white"/>
+    <rect x="24" y="10" width="4"  height="18" rx="1.5" fill="white"/>
+    <rect x="32" y="10" width="4"  height="18" rx="1.5" fill="white"/>
+    <rect x="24" y="24" width="12" height="4" rx="2" fill="white"/>
+  </svg>
+  <p>
+    <strong style="color:#f3f3f3">Finocchio &amp; Ustra Advogados</strong> · Base: Smart Report — Configuração Contencioso (CLI_Providencias_Cont_003)<br>
+    Nota: a base lista providências atualmente cadastradas/ativas. Não há marcação de "cancelado" nesta extração.
+  </p>
 </footer>
 
 <script>
 const CLIENTES = [{"Cat": "★ 1", "Classificacao": "CX", "Nr": 1, "Cliente": "Autoliv", "KeyAccount": "Veridiana", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 2, "Cliente": "Basell Poliolefinas", "KeyAccount": "Felipe Cervone", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 3, "Cliente": "Ceratti - Atualização PPT/BI", "KeyAccount": "Felipe Cervone", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 4, "Cliente": "Fasa", "KeyAccount": "Luis Felipe", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 5, "Cliente": "Freudenberg-NOK", "KeyAccount": "Talita Orsini", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 6, "Cliente": "Galena", "KeyAccount": "Leandro Lucon", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 8}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 7, "Cliente": "Gelnex", "KeyAccount": "Luis Felipe", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 8, "Cliente": "Grupo Arcel", "KeyAccount": "Octávio Ustra", "TipoEnvio": "C.J.", "NrAreas": 6}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 9, "Cliente": "Grupo Clean Field - (Ceratti)", "KeyAccount": "Felipe Cervone", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 10, "Cliente": "Grupo Clean Field - (Ceratti) - Inglês", "KeyAccount": "Felipe Cervone", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 11, "Cliente": "Grupo Clean Field - (Ceratti) - PDF", "KeyAccount": "Felipe Cervone", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 12, "Cliente": "Grupo Fleury / Confiance (processos prioritários)", "KeyAccount": "Luis Felipe Silveira", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 13, "Cliente": "Grupo Freudenberg Geral", "KeyAccount": "Talita Orsini", "TipoEnvio": "C.J.", "NrAreas": 7}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 14, "Cliente": "Grupo Oggi", "KeyAccount": "Leandro Lucon", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 15, "Cliente": "HM Clause", "KeyAccount": "Felipe Cervone", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 16, "Cliente": "JCB", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "C.J.", "NrAreas": 5}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 17, "Cliente": "Kion Comitê", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 18, "Cliente": "Kion Gerencial", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 19, "Cliente": "Kion/Dematic", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "C.J.", "NrAreas": 7}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 20, "Cliente": "Kluber - (Grupo Freudenberg)", "KeyAccount": "Talita Orsini", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 21, "Cliente": "Laboratório Bio-Vet", "KeyAccount": "Luis Felipe Silveira", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 22, "Cliente": "Laboratório Confiance", "KeyAccount": "Luis Felipe Silveira", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 23, "Cliente": "Longping", "KeyAccount": "Bruno Santo", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 24, "Cliente": "Metalinox", "KeyAccount": "Leandro Lucon", "TipoEnvio": "C.J.", "NrAreas": 5}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 25, "Cliente": "Rousselot", "KeyAccount": "Luis Felipe", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 26, "Cliente": "Silgan", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 4}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 27, "Cliente": "Silgan - Relatório Gerencial - Trimestral", "KeyAccount": "Pedro Buffolo", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 28, "Cliente": "Surtec", "KeyAccount": "Talita Orsini", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 29, "Cliente": "Unimed", "KeyAccount": "Leandro Lucon", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 30, "Cliente": "Unimed - Custas", "KeyAccount": "Leandro Lucon", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 31, "Cliente": "Unimed - Depositos", "KeyAccount": "Leandro Lucon", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 32, "Cliente": "Unimed - Financeiro", "KeyAccount": "Leandro Lucon", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 33, "Cliente": "Vetnil", "KeyAccount": "Octávio Ustra", "TipoEnvio": "C.J.", "NrAreas": 5}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 34, "Cliente": "Vibracoustic", "KeyAccount": "Talita Orsini", "TipoEnvio": "C.J.", "NrAreas": 6}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 35, "Cliente": "Vibracoustic Interno", "KeyAccount": "Talita Orsini", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "★ 1", "Classificacao": "CX", "Nr": 36, "Cliente": "Vilmorin", "KeyAccount": "Felipe Cervone", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 37, "Cliente": "A. Schulman (Colortech)", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 38, "Cliente": "A. Schulman - Trimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 39, "Cliente": "AGV", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 40, "Cliente": "Adata", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 41, "Cliente": "Alessandro Galvão", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 42, "Cliente": "Alikan José da Silveira Júnior", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 43, "Cliente": "Apliquimica", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 44, "Cliente": "Centro Medico", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 45, "Cliente": "Chem-Trend", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 46, "Cliente": "Coe", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 47, "Cliente": "Contencioso Heringer - Vendedores (Família Heringer)", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 48, "Cliente": "Daltez - Bimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 49, "Cliente": "Ebara", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 50, "Cliente": "Eduardo Sampaio de Oliveira", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 51, "Cliente": "Ellopar", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 52, "Cliente": "Fertilizantes Heringer", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 53, "Cliente": "GS Inima", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 54, "Cliente": "Gevisa", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 55, "Cliente": "Grupo Gplex", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 56, "Cliente": "HDN", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 57, "Cliente": "Imperatriz", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 58, "Cliente": "Ingredion - Atualização BI", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 59, "Cliente": "Ingredion Brasil", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 60, "Cliente": "Ipackchem", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 61, "Cliente": "Jaguar", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 62, "Cliente": "João Paulo de Carvalho", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 63, "Cliente": "LBR Engenharia", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 64, "Cliente": "LSL", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 65, "Cliente": "Labutare - Bimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 66, "Cliente": "Martin", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 67, "Cliente": "Modera Engenharia", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 68, "Cliente": "N.L. Energia Solar", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 69, "Cliente": "Nick", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 70, "Cliente": "Petitos", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 71, "Cliente": "Regina Coutinho", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 72, "Cliente": "Revise", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 73, "Cliente": "Risknow", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 74, "Cliente": "Roberto Batista da Silva", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 75, "Cliente": "Rogério Grecco", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 76, "Cliente": "Salitre Fertilizantes", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 77, "Cliente": "Salus", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 78, "Cliente": "Sepam", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 79, "Cliente": "TPF", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 80, "Cliente": "TVH Peças Brasil", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 81, "Cliente": "UPL Labor Report", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 82, "Cliente": "VR Software", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 83, "Cliente": "Vento Haragano (JGL, Jorlus e Brazilian)", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 84, "Cliente": "Viapol - INGLÊS - Trimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 85, "Cliente": "Viapol - Trimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 86, "Cliente": "Villani Alphaville", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 87, "Cliente": "Weme - Bimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 88, "Cliente": "Woodward", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 89, "Cliente": "XCelis", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 90, "Cliente": "Yessinergy - Trimestral", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "◆ 2", "Classificacao": "Trabalhista", "Nr": 91, "Cliente": "Âncora Chumbadores", "KeyAccount": "", "TipoEnvio": "Trabalhista", "NrAreas": 1}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 92, "Cliente": "A. Schulman", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 4}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 93, "Cliente": "Agis", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 94, "Cliente": "Agrivalle", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 95, "Cliente": "Aliseo", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 96, "Cliente": "Balluff", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 97, "Cliente": "Benteler", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 4}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 98, "Cliente": "Contech", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 99, "Cliente": "Fertilizantes Tocantins", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 100, "Cliente": "Graham", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 101, "Cliente": "Hanier", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 4}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 102, "Cliente": "Kadant", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 103, "Cliente": "M.Layer", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 104, "Cliente": "Mosca", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 105, "Cliente": "Ouro Fino", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 106, "Cliente": "Proton", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 107, "Cliente": "Pupee", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 108, "Cliente": "Sun Ace", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 109, "Cliente": "Suprir", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 110, "Cliente": "Tecno Tools", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 4}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 111, "Cliente": "UPL", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 112, "Cliente": "Viapol", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 3}, {"Cat": "● 3", "Classificacao": "Multi-área · Trabalhista", "Nr": 113, "Cliente": "Yessinergy", "KeyAccount": "", "TipoEnvio": "C.J. + Trabalhista", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 114, "Cliente": "AGA Armazéns", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 115, "Cliente": "Alfa", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 116, "Cliente": "Anjo Química", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 117, "Cliente": "Ball do Brasil", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 118, "Cliente": "Bollhoff", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 119, "Cliente": "Braswell", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 6}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 120, "Cliente": "Broto Legal", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 121, "Cliente": "CBP Indústria", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 122, "Cliente": "Casale", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 123, "Cliente": "Colchões Apolo", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 124, "Cliente": "Cooperativa Nova Esperança", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 125, "Cliente": "Eaton", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 126, "Cliente": "Elsys", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 5}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 127, "Cliente": "Emerson", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 128, "Cliente": "Equipesca", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 129, "Cliente": "Facchini", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 130, "Cliente": "Fantástico Alimentos - (Ruston)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 131, "Cliente": "Farmabase", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 132, "Cliente": "GM", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 133, "Cliente": "Global Frutas", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 134, "Cliente": "Glory Global", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 135, "Cliente": "Grupo Fitcard", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 136, "Cliente": "IOB/SAGE (AO3)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 137, "Cliente": "Ilender", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 138, "Cliente": "Ingredion", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 139, "Cliente": "Insider", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 140, "Cliente": "Intercement", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 141, "Cliente": "Kennametal", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 142, "Cliente": "Macmillan", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 143, "Cliente": "MasterSense", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 144, "Cliente": "Momentive", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 145, "Cliente": "Myralis", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 146, "Cliente": "Máquinas Furlan", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 147, "Cliente": "Novametal", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 148, "Cliente": "Padtec", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 149, "Cliente": "Perfetti", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 150, "Cliente": "Portal", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 151, "Cliente": "Pulvitec / Salatec", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 152, "Cliente": "Real Moto Peças", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 153, "Cliente": "Scholle", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 154, "Cliente": "Skytech", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 155, "Cliente": "Sonepar", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 156, "Cliente": "Tagma", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 157, "Cliente": "Tennis Sports", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 158, "Cliente": "Thebe (Ebara)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 3}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 159, "Cliente": "Transdata", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 6}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 160, "Cliente": "Transportadora Porto Ferreira", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 4}, {"Cat": "● 4", "Classificacao": "Multi-área · C.J.", "Nr": 161, "Cliente": "Univar", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 2}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 162, "Cliente": "ADTsys", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 163, "Cliente": "Alci Previtali", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 164, "Cliente": "Alimentos Wilson", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 165, "Cliente": "Angelo Eduardo", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 166, "Cliente": "Atmis", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 167, "Cliente": "Auto Defesa - (Campseg)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 168, "Cliente": "BK Consultoria", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 169, "Cliente": "Benassi", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 170, "Cliente": "Brasplan", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 171, "Cliente": "Buchara", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 172, "Cliente": "CHS Olesen - (CHR)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 173, "Cliente": "COIM", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 174, "Cliente": "Candura 1", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 175, "Cliente": "Candura 2", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 176, "Cliente": "Catalent", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 177, "Cliente": "DHL - Atualização no Site", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 178, "Cliente": "DMB Máquinas", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 179, "Cliente": "Daltez", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 180, "Cliente": "Danie Indústria (PDF)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 181, "Cliente": "Delta", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 182, "Cliente": "Drivetech", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 183, "Cliente": "Eagleburgmann", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 184, "Cliente": "Eduk (MindLab)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 185, "Cliente": "Elgin - (antiga Heatcraft)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 186, "Cliente": "Eltek", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 187, "Cliente": "Federzoni", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 188, "Cliente": "Finepack", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 189, "Cliente": "Flextronics", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 190, "Cliente": "GEA", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 191, "Cliente": "Grupo GS Inima", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 192, "Cliente": "Grupo Hortifrutti", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 193, "Cliente": "Grupo LSL", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 194, "Cliente": "Grupo RVM", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 195, "Cliente": "Grupo Sforza", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 196, "Cliente": "Grupo Toniello", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 197, "Cliente": "Guangan", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 198, "Cliente": "Guerra Implementos", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 199, "Cliente": "HANNA", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 200, "Cliente": "Herbicat", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 201, "Cliente": "Heringer", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 202, "Cliente": "Iberfrutas", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 203, "Cliente": "Isabel da Cunha \"Ilmo\"", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 204, "Cliente": "Isat - (Inspand)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 205, "Cliente": "JA Saúde Animal", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 206, "Cliente": "Jacobsen", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 207, "Cliente": "Laboratório Aclimação", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 208, "Cliente": "Leonardo Leal Lopes", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 209, "Cliente": "M2B Automotiv", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 210, "Cliente": "MAIZ", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 211, "Cliente": "Max Gaudereto", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 212, "Cliente": "Mazars / Cabrera Consultoria", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 213, "Cliente": "Mega Utilidades", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 214, "Cliente": "Moinhos", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 215, "Cliente": "Mr. Bey / Alibey", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 216, "Cliente": "Móveis Província", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 217, "Cliente": "NSM", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 218, "Cliente": "Neotech", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 219, "Cliente": "Neovia", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 220, "Cliente": "Nexira Sas.", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 221, "Cliente": "Nova Assist", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 222, "Cliente": "PPG", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 223, "Cliente": "Pedra Agroindustrial", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 224, "Cliente": "Pedro Dalari", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 225, "Cliente": "Plurinox", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 226, "Cliente": "Polidomi", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 227, "Cliente": "Produtos Alimentícios Orlandi", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 228, "Cliente": "Produzir", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 229, "Cliente": "Rede Brasileira (Mundo Verde)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 230, "Cliente": "Result Armazéns", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 231, "Cliente": "Samsung", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 232, "Cliente": "Sanmina", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 233, "Cliente": "Santa Clara", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 234, "Cliente": "Soledade", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 235, "Cliente": "Somma", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 236, "Cliente": "Stracci", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 237, "Cliente": "Sérgio Paulo Fernandes Mauad", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 238, "Cliente": "Sólides", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 239, "Cliente": "TCA/Horiba", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 240, "Cliente": "TUV RHEINLAND", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 241, "Cliente": "Tech Filter", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 242, "Cliente": "Thais Saliba", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 243, "Cliente": "Transportadora Steck", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 244, "Cliente": "Transportadora Veronese", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 245, "Cliente": "UCBVET", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 246, "Cliente": "Unimobili", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 247, "Cliente": "Uniron/Autimex", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 248, "Cliente": "VINDI", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 249, "Cliente": "VIP Transportes - (Grupo Vipex)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 250, "Cliente": "VPN Comunicação", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 251, "Cliente": "Vermeer", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 252, "Cliente": "Viapol - \"Autora\"", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 253, "Cliente": "Viapol - \"Ré\"", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 254, "Cliente": "Viapol - (Ré)", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}, {"Cat": "○ 5", "Classificacao": "Área única", "Nr": 255, "Cliente": "Waldyr Lima", "KeyAccount": "", "TipoEnvio": "C.J.", "NrAreas": 1}];
 
-// ── Charts ──────────────────────────────────────────────────────────
+// ── Chart defaults ──────────────────────────────────────
 Chart.defaults.color = '#6d6e71';
 Chart.defaults.font.family = 'Verdana, Geneva, sans-serif';
-Chart.defaults.font.size = 11;
+Chart.defaults.font.size = 10;
 
-const catColors  = ['#009edb','#494092','#68c4d4','#304f9d','#6d6e71'];
-const catLabels  = ['★ Cat. 1 — CX','◆ Cat. 2 — Trabalhista','● Cat. 3 — Multi-área·Trab.','● Cat. 4 — Multi-área·C.J.','○ Cat. 5 — Área única'];
-const catValues  = [36, 55, 22, 48, 94];
+// ── Categorias ──────────────────────────────────────────
+const catColors = ['#009edb','#494092','#68c4d4','#304f9d','#6d6e71'];
+const catLabels = ['★ Cat. 1 — CX','◆ Cat. 2 — Trabalhista','● Cat. 3 — Multi·Trab.','● Cat. 4 — Multi·C.J.','○ Cat. 5 — Área única'];
+const catValues = [36, 55, 22, 48, 94];
 
 new Chart(document.getElementById('catChart'), {
   type: 'doughnut',
   data: {
     labels: catLabels,
-    datasets: [{ data: catValues, backgroundColor: catColors, borderWidth: 2, borderColor: '#152339', hoverOffset: 6 }]
+    datasets: [{ data: catValues, backgroundColor: catColors, borderWidth: 2, borderColor: '#152339', hoverOffset: 8 }]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } },
-    cutout: '65%'
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `  ${ctx.label}: ${ctx.parsed} clientes` } }
+    },
+    cutout: '68%'
   }
 });
 const catLeg = document.getElementById('catLegend');
@@ -349,6 +518,7 @@ catLabels.forEach((l,i) => {
   catLeg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${catColors[i]}"></div><span>${l} (${catValues[i]})</span></div>`;
 });
 
+// ── Envio ───────────────────────────────────────────────
 const envioColors = ['#009edb','#8ebf22','#efc517'];
 const envioLabels = ['Somente C.J.','Somente Trabalhista','C.J. + Trabalhista'];
 const envioValues = [160, 67, 28];
@@ -357,20 +527,23 @@ new Chart(document.getElementById('envioChart'), {
   type: 'doughnut',
   data: {
     labels: envioLabels,
-    datasets: [{ data: envioValues, backgroundColor: envioColors, borderWidth: 2, borderColor: '#152339', hoverOffset: 6 }]
+    datasets: [{ data: envioValues, backgroundColor: envioColors, borderWidth: 2, borderColor: '#152339', hoverOffset: 8 }]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } },
-    cutout: '65%'
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `  ${ctx.label}: ${ctx.parsed} clientes` } }
+    },
+    cutout: '68%'
   }
 });
 const envioLeg = document.getElementById('envioLegend');
 envioLabels.forEach((l,i) => {
-  envioLeg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${envioColors[i]}"></div><span>${l} (${envioValues[i]})</span></div>`;
+  envioLeg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${envioColors[i]}"></div><span>${envioLabels[i]} (${envioValues[i]})</span></div>`;
 });
 
-// ── Area Bars ────────────────────────────────────────────────────────
+// ── Area bars ───────────────────────────────────────────
 const areaData = [
   ['Tributário Judicial', 121, '#009edb'],
   ['Trabalhista', 115, '#494092'],
@@ -381,7 +554,6 @@ const areaData = [
   ['Aduaneiro', 15, '#efc517'],
   ['Penal Empresarial', 14, '#ea5627'],
   ['Compliance / Contratual / Societário', 6, '#6d6e71'],
-  ['Outros', 1, '#282a2b'],
 ];
 const maxArea = 121;
 const areaContainer = document.getElementById('areaBars');
@@ -390,16 +562,16 @@ areaData.forEach(([name, count, color]) => {
   areaContainer.innerHTML += `
     <div class="area-row">
       <div class="area-name">${name}</div>
-      <div class="area-bar-wrap">
-        <div class="area-bar" style="width:${pct}%;background:${color}">${count}</div>
+      <div class="area-track">
+        <div class="area-fill" style="width:${pct}%;background:${color}">${count}</div>
       </div>
-      <div class="area-count">${count}</div>
+      <div class="area-num">${count}</div>
     </div>`;
 });
 
-// ── Table ─────────────────────────────────────────────────────────────
+// ── Table ───────────────────────────────────────────────
 let currentPage = 1;
-const pageSize = 15;
+const pageSize  = 15;
 let filtered = [...CLIENTES];
 
 function catTag(c) {
@@ -415,29 +587,32 @@ function catTag(c) {
 }
 
 function envioTag(e) {
-  if (e === 'C.J.')             return '<span class="envio-tag envio-cj">C.J.</span>';
-  if (e === 'Trabalhista')      return '<span class="envio-tag envio-trab">Trabalhista</span>';
-  if (e === 'C.J. + Trabalhista') return '<span class="envio-tag envio-both">C.J. + Trabalhista</span>';
-  return e;
+  if (e === 'C.J.')               return '<span class="etag ecj">C.J.</span>';
+  if (e === 'Trabalhista')        return '<span class="etag etrab">Trabalhista</span>';
+  if (e === 'C.J. + Trabalhista') return '<span class="etag eboth">C.J. + Trabalhista</span>';
+  return `<span style="color:#6d6e71">${e}</span>`;
 }
 
 function renderTable() {
-  const tbody = document.getElementById('clientTable');
   const start = (currentPage - 1) * pageSize;
   const slice = filtered.slice(start, start + pageSize);
-  tbody.innerHTML = slice.map((c, i) => `
+  document.getElementById('clientTable').innerHTML = slice.map((c, i) => `
     <tr>
-      <td class="muted">${start + i + 1}</td>
+      <td style="color:#6d6e71;font-size:11px">${start + i + 1}</td>
       <td>${catTag(c.Classificacao)}</td>
-      <td style="color:#f3f3f3;font-weight:600">${c.Cliente}</td>
-      <td class="muted">${c.KeyAccount || '—'}</td>
+      <td style="color:#f3f3f3;font-weight:700;font-size:12px">${c.Cliente}</td>
+      <td style="color:#6d6e71">${c.KeyAccount || '—'}</td>
       <td>${envioTag(c.TipoEnvio)}</td>
-      <td style="text-align:center;font-weight:700;color:#009edb">${c.NrAreas || '—'}</td>
+      <td style="text-align:center"><span class="nr-badge">${c.NrAreas || '—'}</span></td>
     </tr>
   `).join('');
+
   const total = filtered.length;
   const pages = Math.ceil(total / pageSize);
-  document.getElementById('pageInfo').textContent = `${start+1}–${Math.min(start+pageSize,total)} de ${total} clientes`;
+  document.getElementById('pageInfo').textContent =
+    `Exibindo ${start+1}–${Math.min(start+pageSize,total)} de ${total} clientes`;
+  document.getElementById('filterCount').textContent =
+    filtered.length < CLIENTES.length ? `${filtered.length} de ${CLIENTES.length} clientes` : '';
   document.getElementById('btnPrev').disabled = currentPage === 1;
   document.getElementById('btnNext').disabled = currentPage >= pages;
 }
@@ -449,7 +624,8 @@ function applyFilters() {
   filtered = CLIENTES.filter(c => {
     if (cat   && c.Classificacao !== cat)   return false;
     if (envio && c.TipoEnvio     !== envio) return false;
-    if (search && !c.Cliente.toLowerCase().includes(search) && !(c.KeyAccount||'').toLowerCase().includes(search)) return false;
+    if (search && !c.Cliente.toLowerCase().includes(search) &&
+        !(c.KeyAccount||'').toLowerCase().includes(search)) return false;
     return true;
   });
   currentPage = 1;
