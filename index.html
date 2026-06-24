@@ -4,7 +4,172 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+
+// ── VOLUMETRIA DIÁRIA ───────────────────────────────────────────────
+let vdClientChart = null;
+let vdAreaChart   = null;
+
+function vdTipoRel(obs) {
+  const o = (obs||'').toLowerCase();
+  if (o.includes('trimestral')) return 'Trimestral';
+  if (o.includes('ppt') || o.includes('/bi') || o.includes('ppt/bi')) return 'PPT/BI';
+  if (o.includes('semestral')) return 'Semestral';
+  return 'Mensal';
+}
+
+function vdGoToday() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('vdDate').value = today;
+  renderVD();
+}
+
+function vdShiftDay(delta) {
+  const inp = document.getElementById('vdDate');
+  const d = inp.value ? new Date(inp.value + 'T12:00:00') : new Date();
+  d.setDate(d.getDate() + delta);
+  inp.value = d.toISOString().split('T')[0];
+  renderVD();
+}
+
+const DIAS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function renderVD() {
+  const val = document.getElementById('vdDate').value;
+  if (!val) return;
+
+  const [y,m,day] = val.split('-').map(Number);
+  const d = new Date(y, m-1, day);
+  document.getElementById('vdDayName').textContent =
+    DIAS[d.getDay()] + ', ' + day + ' de ' + MESES[m-1] + ' de ' + y;
+
+  // Filter providências for this date
+  const provs = PROVIDENCIAS.filter(p => p.PrazoFatal === val);
+
+  // KPIs
+  const total = provs.length;
+  let mensal=0, trim=0, ppt=0;
+  provs.forEach(p => {
+    const t = vdTipoRel(p.Obs);
+    if (t==='Mensal') mensal++;
+    else if (t==='Trimestral') trim++;
+    else if (t==='PPT/BI') ppt++;
+  });
+  document.getElementById('vd-total').textContent      = total;
+  document.getElementById('vd-mensal').textContent     = mensal;
+  document.getElementById('vd-trimestral').textContent = trim;
+  document.getElementById('vd-ppt').textContent        = ppt;
+
+  // By client
+  const byClient = {};
+  provs.forEach(p => { byClient[p.Cliente] = (byClient[p.Cliente]||0) + 1; });
+  const clientSorted = Object.entries(byClient).sort((a,b)=>b[1]-a[1]);
+  const cliLabels = clientSorted.map(([n])=>n.length>18?n.slice(0,17)+'…':n);
+  const cliVals   = clientSorted.map(([,v])=>v);
+  document.getElementById('vd-cli-cnt').textContent = clientSorted.length + ' cliente' + (clientSorted.length!==1?'s':'');
+
+  // By area
+  const byArea = {};
+  provs.forEach(p => { byArea[p.Area] = (byArea[p.Area]||0) + 1; });
+  const areaSorted = Object.entries(byArea).sort((a,b)=>b[1]-a[1]);
+  const areaLabels = areaSorted.map(([n])=>n);
+  const areaVals   = areaSorted.map(([,v])=>v);
+  document.getElementById('vd-area-cnt').textContent = areaSorted.length + ' área' + (areaSorted.length!==1?'s':'');
+
+  // Chart: by client
+  const cliH = Math.max(200, clientSorted.length * 28);
+  document.querySelector('#vdClientChart').parentElement.style.height = cliH + 'px';
+  if (vdClientChart) vdClientChart.destroy();
+  if (total === 0) {
+    document.querySelector('#vdClientChart').getContext('2d').clearRect(0,0,9999,9999);
+  } else {
+    vdClientChart = new Chart(document.getElementById('vdClientChart'), {
+      type: 'bar',
+      data: {
+        labels: cliLabels,
+        datasets: [{ data: cliVals, backgroundColor: '#009edb', borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => clientSorted[items[0].dataIndex][0],
+              label: (item)  => '  ' + item.parsed.x + ' providência' + (item.parsed.x!==1?'s':'')
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color:'rgba(255,255,255,.06)' }, ticks: { color:'#6d6e71', stepSize:1 }, border:{color:'transparent'} },
+          y: { grid: { display:false }, ticks: { color:'#f3f3f3', font:{size:11} }, border:{color:'transparent'} }
+        }
+      }
+    });
+  }
+
+  // Chart: by area
+  const areaColors = ['#009edb','#494092','#304f9d','#68c4d4','#8ebf22','#58b031','#efc517','#ea5627','#bb274b','#6d6e71'];
+  const areaH = Math.max(200, areaSorted.length * 32);
+  document.querySelector('#vdAreaChart').parentElement.style.height = areaH + 'px';
+  if (vdAreaChart) vdAreaChart.destroy();
+  if (total === 0) {
+    document.querySelector('#vdAreaChart').getContext('2d').clearRect(0,0,9999,9999);
+  } else {
+    vdAreaChart = new Chart(document.getElementById('vdAreaChart'), {
+      type: 'bar',
+      data: {
+        labels: areaLabels,
+        datasets: [{ data: areaVals, backgroundColor: areaColors, borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (item) => '  ' + item.parsed.x + ' providência' + (item.parsed.x!==1?'s':'') } }
+        },
+        scales: {
+          x: { grid: { color:'rgba(255,255,255,.06)' }, ticks: { color:'#6d6e71', stepSize:1 }, border:{color:'transparent'} },
+          y: { grid: { display:false }, ticks: { color:'#f3f3f3', font:{size:11} }, border:{color:'transparent'} }
+        }
+      }
+    });
+  }
+
+  // Detail table
+  const wrap = document.getElementById('vdTableWrap');
+  if (total === 0) {
+    wrap.innerHTML = '<div class="vd-empty">Nenhuma providência encontrada para esta data.</div>';
+    return;
+  }
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>
+      </tr></thead>
+      <tbody>${provs.map((p,i) => `
+        <tr onclick="openDrawer('${escQ(p.Cliente)}')" style="cursor:pointer">
+          <td style="color:#6d6e71;font-size:11px">${i+1}</td>
+          <td style="color:#f3f3f3;font-weight:700;font-size:12px">${p.Cliente}</td>
+          <td>${p.Area||'—'}</td>
+          <td>${envTag(p.TipoEnvio)}</td>
+          <td><span class="etag" style="background:rgba(0,158,219,.1);color:#009edb;border:1px solid rgba(0,158,219,.25);font-size:10px">${vdTipoRel(p.Obs)}</span></td>
+          <td style="color:#6d6e71;font-size:11px;max-width:300px">${p.Obs||'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// Init: set today and render
+(function initVD() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('vdDate').value = today;
+})();
+
+</script>
 <style>
 :root {
   --fius:#009edb; --navy:#111d30; --navy2:#152339; --navy3:#1a2b45;
@@ -174,6 +339,30 @@ tbody td{padding:10px 13px;vertical-align:middle}
 footer{background:var(--navy2);border-top:1px solid rgba(0,158,219,.12);padding:16px 36px;display:flex;align-items:center;gap:14px}
 footer svg{width:26px;height:26px;opacity:.4;flex-shrink:0}
 footer p{font-size:10px;color:var(--gray);line-height:1.6}
+
+/* ── VOLUMETRIA DIÁRIA ── */
+.vd-top { display:flex; gap:14px; margin-bottom:20px; align-items:flex-start; flex-wrap:wrap; }
+.vd-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+.vd-date-input { background:var(--navy3); border:1px solid rgba(0,158,219,.35); color:var(--white); padding:9px 14px; border-radius:8px; font-size:13px; font-family:Verdana,sans-serif; outline:none; cursor:pointer; }
+.vd-date-input:focus { border-color:var(--fius); }
+.vd-date-nav { display:flex; gap:6px; }
+.vd-nav-btn { background:var(--navy3); border:1px solid rgba(255,255,255,.1); color:var(--white); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:13px; font-family:Verdana,sans-serif; font-weight:700; transition:all .15s; }
+.vd-nav-btn:hover { background:var(--fius); border-color:var(--fius); }
+.vd-today { background:rgba(0,158,219,.15); border-color:rgba(0,158,219,.4); color:var(--fius); }
+
+.vd-kpis { display:flex; flex-direction:column; gap:10px; min-width:160px; }
+.vd-kpi { background:var(--navy2); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:14px 18px; text-align:center; position:relative; overflow:hidden; }
+.vd-kpi .vd-kpi-bar { position:absolute; top:0; left:0; right:0; height:3px; background:var(--c, var(--fius)); }
+.vd-kpi-label { font-size:10px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.6px; }
+.vd-kpi-value { font-size:32px; font-weight:700; color:var(--c, var(--fius)); line-height:1; margin-top:6px; }
+
+.vd-charts { flex:1; display:flex; flex-direction:column; gap:14px; }
+.vd-chart-card { background:var(--navy2); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:18px 20px; }
+.vd-chart-wrap { position:relative; height:200px; }
+.vd-empty { text-align:center; padding:40px 0; color:var(--gray); font-size:13px; }
+
+.vd-table-card { background:var(--navy2); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:18px 20px; margin-top:14px; }
+
 </style>
 </head>
 <body>
@@ -211,6 +400,7 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
   <div class="tab" onclick="showPage('clientes')">Todos os Clientes</div>
   <div class="tab" onclick="showPage('trabalhista')">Envio Trabalhista</div>
   <div class="tab" onclick="showPage('cx')">Clientes CX</div>
+  <div class="tab" onclick="showPage('diaria')">Volumetria Diária</div>
 </div>
 
 <!-- PAGES -->
@@ -361,17 +551,19 @@ Chart.defaults.font.size = 10;
 
 const catC = ['#009edb','#494092','#68c4d4','#304f9d','#6d6e71'];
 const catL = ['★ Cat. 1 — CX','◆ Cat. 2 — Trabalhista','● Cat. 3 — Multi·Trab.','● Cat. 4 — Multi·C.J.','○ Cat. 5 — Área única'];
-const catV = [36,55,22,48,94];
+const catV = [36, 55, 22, 48, 94];
 new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catL,datasets:[{data:catV,backgroundColor:catC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 const cL=document.getElementById('catLeg');catL.forEach((l,i)=>{cL.innerHTML+=`<div class="li"><div class="ld" style="background:${catC[i]}"></div><span>${l} (${catV[i]})</span></div>`;});
 
 const envC=['#009edb','#8ebf22','#efc517'];
 const envL=['Somente C.J.','Somente Trabalhista','C.J. + Trabalhista'];
-const envV=[160,67,28];
+const envV=[160, 67, 28];
 new Chart(document.getElementById('envioChart'),{type:'doughnut',data:{labels:envL,datasets:[{data:envV,backgroundColor:envC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 const eL=document.getElementById('envioLeg');envL.forEach((l,i)=>{eL.innerHTML+=`<div class="li"><div class="ld" style="background:${envC[i]}"></div><span>${l} (${envV[i]})</span></div>`;});
 
-const areaData=[['Tributário Judicial',121,'#009edb'],['Trabalhista',115,'#494092'],['Cível',66,'#304f9d'],['Tributário Administrativo',51,'#68c4d4'],['Recuperação Judicial',38,'#8ebf22'],['Ambiental',17,'#58b031'],['Aduaneiro',15,'#efc517'],['Penal Empresarial',14,'#ea5627'],['Compliance / Contratual / Societário',6,'#6d6e71']];
+const AREA_COLORS={'Tributário Judicial':'#009edb','Trabalhista':'#494092','Cível':'#304f9d','Tributário Administrativo':'#68c4d4','Recuperação Judicial':'#8ebf22','Ambiental':'#58b031','Aduaneiro':'#efc517','Penal Empresarial':'#ea5627','Compliance':'#75398e','Contratual':'#ac1b82','Societário':'#bb274b','Aduaneiro':'#efc517','RJ/Bancário':'#ea5627','Tributário Consultivo':'#68c4d4','Comercial':'#8ebf22'};
+const AREA_COUNTS_RAW = {"Tributário Judicial": 121, "Trabalhista": 115, "Cível": 66, "Tributário Administrativo": 51, "Recuperação Judicial": 38, "Ambiental": 17, "Aduaneiro": 15, "Penal Empresarial": 14, "Compliance": 2, "Contratual": 2, "Societário": 2, "RJ/Bancário": 2, "Tributário Consultivo": 1, "Comercial": 1, "Tibutário Judicial": 1};
+const areaData=Object.entries(AREA_COUNTS_RAW).slice(0,10).map(([n,v])=>[n,v,AREA_COLORS[n]||'#6d6e71']);
 const aB=document.getElementById('areaBars');
 areaData.forEach(([n,v,c])=>{const p=(v/121*100).toFixed(1);aB.innerHTML+=`<div class="area-row"><div class="area-name">${n}</div><div class="area-track"><div class="area-fill" style="width:${p}%;background:${c}">${v}</div></div><div class="area-num">${v}</div></div>`;});
 
