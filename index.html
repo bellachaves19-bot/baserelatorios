@@ -167,6 +167,7 @@ function renderVD() {
 (function initVD() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('vdDate').value = today;
+  renderVD();
 })();
 
 </script>
@@ -542,6 +543,7 @@ function showPage(id) {
   event.target.classList.add('active');
   if (id === 'trabalhista') renderTrab();
   if (id === 'cx')          renderCX();
+  if (id === 'diaria')      renderVD();
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────
