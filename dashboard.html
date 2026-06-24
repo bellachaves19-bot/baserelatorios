@@ -361,17 +361,19 @@ Chart.defaults.font.size = 10;
 
 const catC = ['#009edb','#494092','#68c4d4','#304f9d','#6d6e71'];
 const catL = ['★ Cat. 1 — CX','◆ Cat. 2 — Trabalhista','● Cat. 3 — Multi·Trab.','● Cat. 4 — Multi·C.J.','○ Cat. 5 — Área única'];
-const catV = [36,55,22,48,94];
+const catV = [36, 55, 22, 48, 94];
 new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catL,datasets:[{data:catV,backgroundColor:catC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 const cL=document.getElementById('catLeg');catL.forEach((l,i)=>{cL.innerHTML+=`<div class="li"><div class="ld" style="background:${catC[i]}"></div><span>${l} (${catV[i]})</span></div>`;});
 
 const envC=['#009edb','#8ebf22','#efc517'];
 const envL=['Somente C.J.','Somente Trabalhista','C.J. + Trabalhista'];
-const envV=[160,67,28];
+const envV=[160, 67, 28];
 new Chart(document.getElementById('envioChart'),{type:'doughnut',data:{labels:envL,datasets:[{data:envV,backgroundColor:envC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 const eL=document.getElementById('envioLeg');envL.forEach((l,i)=>{eL.innerHTML+=`<div class="li"><div class="ld" style="background:${envC[i]}"></div><span>${l} (${envV[i]})</span></div>`;});
 
-const areaData=[['Tributário Judicial',121,'#009edb'],['Trabalhista',115,'#494092'],['Cível',66,'#304f9d'],['Tributário Administrativo',51,'#68c4d4'],['Recuperação Judicial',38,'#8ebf22'],['Ambiental',17,'#58b031'],['Aduaneiro',15,'#efc517'],['Penal Empresarial',14,'#ea5627'],['Compliance / Contratual / Societário',6,'#6d6e71']];
+const AREA_COLORS={'Tributário Judicial':'#009edb','Trabalhista':'#494092','Cível':'#304f9d','Tributário Administrativo':'#68c4d4','Recuperação Judicial':'#8ebf22','Ambiental':'#58b031','Aduaneiro':'#efc517','Penal Empresarial':'#ea5627','Compliance':'#75398e','Contratual':'#ac1b82','Societário':'#bb274b','Aduaneiro':'#efc517','RJ/Bancário':'#ea5627','Tributário Consultivo':'#68c4d4','Comercial':'#8ebf22'};
+const AREA_COUNTS_RAW = {"Tributário Judicial": 121, "Trabalhista": 115, "Cível": 66, "Tributário Administrativo": 51, "Recuperação Judicial": 38, "Ambiental": 17, "Aduaneiro": 15, "Penal Empresarial": 14, "Compliance": 2, "Contratual": 2, "Societário": 2, "RJ/Bancário": 2, "Tributário Consultivo": 1, "Comercial": 1, "Tibutário Judicial": 1};
+const areaData=Object.entries(AREA_COUNTS_RAW).slice(0,10).map(([n,v])=>[n,v,AREA_COLORS[n]||'#6d6e71']);
 const aB=document.getElementById('areaBars');
 areaData.forEach(([n,v,c])=>{const p=(v/121*100).toFixed(1);aB.innerHTML+=`<div class="area-row"><div class="area-name">${n}</div><div class="area-track"><div class="area-fill" style="width:${p}%;background:${c}">${v}</div></div><div class="area-num">${v}</div></div>`;});
 
