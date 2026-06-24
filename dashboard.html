@@ -227,11 +227,11 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showPage('dashboard')">Dashboard</div>
-  <div class="tab" onclick="showPage('clientes')">Todos os Clientes</div>
-  <div class="tab" onclick="showPage('trabalhista')">Envio Trabalhista</div>
-  <div class="tab" onclick="showPage('cx')">Clientes CX</div>
-  <div class="tab" onclick="showPage('diaria')">Volumetria Diária</div>
+  <div class="tab active" onclick="showPage('dashboard', this)">Dashboard</div>
+  <div class="tab" onclick="showPage('clientes', this)">Todos os Clientes</div>
+  <div class="tab" onclick="showPage('trabalhista', this)">Envio Trabalhista</div>
+  <div class="tab" onclick="showPage('cx', this)">Clientes CX</div>
+  <div class="tab" onclick="showPage('diaria', this)">Volumetria Diária</div>
 </div>
 
 <!-- PAGES -->
@@ -366,14 +366,14 @@ const PROVIDENCIAS = [{"Cat": "● 3", "Classificacao": "Multi-área · Trabalhi
 const CX_MAP = {"Autoliv": "Autoliv", "Basell Poliolefinas": "LyondellBasell", "Ceratti - Atualização PPT/BI": "Ceratti", "Fasa": "Rousselot", "Freudenberg-NOK": "Freudenberg (Vibracustic)", "Galena": "Galena", "Gelnex": "Rousselot", "Grupo Arcel": "Arcel", "Grupo Clean Field - (Ceratti)": "Ceratti", "Grupo Clean Field - (Ceratti) - Inglês": "Ceratti", "Grupo Clean Field - (Ceratti) - PDF": "Ceratti", "Grupo Fleury / Confiance (processos prioritários)": "Biovet", "Grupo Freudenberg Geral": "Freudenberg (Vibracustic)", "Grupo Oggi": "Oggi", "HM Clause": "HM Clause (Vilmorin)", "JCB": "JCB", "Kion Comitê": "Kion Group", "Kion Gerencial": "Kion Group", "Kion/Dematic": "Kion Group", "Kluber - (Grupo Freudenberg)": "Freudenberg (Vibracustic)", "Laboratório Bio-Vet": "Biovet", "Laboratório Confiance": "Biovet", "Longping": "Longping High-Tech", "Metalinox": "Metalinox", "Rousselot": "Rousselot", "Silgan": "Silgan", "Silgan - Relatório Gerencial - Trimestral": "Silgan", "Surtec": "Freudenberg (Vibracustic)", "Unimed": "Unimed", "Unimed - Custas": "Unimed", "Unimed - Depositos": "Unimed", "Unimed - Financeiro": "Unimed", "Vetnil": "Vetnil", "Vibracoustic": "Freudenberg (Vibracustic)", "Vibracoustic Interno": "Freudenberg (Vibracustic)", "Vilmorin": "HM Clause (Vilmorin)"};
 
 // ── TABS ───────────────────────────────────────────────────────────
-function showPage(id) {
+function showPage(id, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   if (id === 'trabalhista') renderTrab();
   if (id === 'cx')          renderCX();
-  if (id === 'diaria')      renderVD();{ renderVD(); }
+  if (id === 'diaria')      renderVD();
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────
