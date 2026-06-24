@@ -194,11 +194,95 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
 .vd-empty{text-align:center;padding:40px 0;color:var(--gray);font-size:13px}
 .vd-table-card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px 20px;margin-top:14px}
 
+
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed;inset:0;z-index:9999;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+}
+#login-screen.hidden { display:none; }
+.login-box {
+  background:var(--navy2);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:48px 44px;
+  width:100%;max-width:380px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.login-logo { margin-bottom:28px; }
+.login-title {
+  font-size:15px;font-weight:700;color:var(--white);
+  letter-spacing:.5px;margin-bottom:4px;text-align:center;
+}
+.login-sub {
+  font-size:11px;color:var(--gray);margin-bottom:32px;text-align:center;letter-spacing:.4px;
+}
+.login-field {
+  width:100%;margin-bottom:12px;position:relative;
+}
+.login-field input {
+  width:100%;box-sizing:border-box;
+  background:var(--navy3);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  padding:13px 16px;
+  color:var(--white);
+  font-family:Verdana,Geneva,sans-serif;
+  font-size:13px;
+  outline:none;
+  transition:border .2s;
+}
+.login-field input:focus { border-color:var(--fius); }
+.login-field input::placeholder { color:rgba(109,110,113,.7); }
+.login-btn {
+  width:100%;margin-top:8px;
+  background:var(--fius);
+  border:none;border-radius:10px;
+  padding:13px;
+  color:#fff;font-family:Verdana,Geneva,sans-serif;
+  font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.5px;
+  transition:opacity .2s;
+}
+.login-btn:hover { opacity:.88; }
+.login-err {
+  color:#bb274b;font-size:11px;margin-top:10px;
+  min-height:16px;text-align:center;letter-spacing:.3px;
+}
+.login-footer {
+  margin-top:36px;font-size:10px;color:rgba(109,110,113,.6);text-align:center;
+}
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 88 110" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0"  y="0"   width="13" height="110" fill="#009edb"/>
+        <rect x="0"  y="0"   width="60" height="13"  fill="#009edb"/>
+        <rect x="75" y="0"   width="13" height="26"  fill="#009edb"/>
+        <rect x="75" y="55"  width="13" height="55"  fill="#009edb"/>
+        <rect x="28" y="97"  width="60" height="13"  fill="#009edb"/>
+      </svg>
+    </div>
+    <div class="login-title">FINOCCHIO & USTRA ADVOGADOS</div>
+    <div class="login-sub">SMART REPORT — ACESSO RESTRITO</div>
+    <div class="login-field">
+      <input type="password" id="login-pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">ENTRAR</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-footer">Uso exclusivo interno · Finocchio & Ustra Advogados</div>
+  </div>
+</div>
+
 <header>
   <div class="logo-wrap">
     <svg class="logo-svg" viewBox="0 0 88 110" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -751,6 +835,40 @@ document.addEventListener('DOMContentLoaded', function(){
   var inp = document.getElementById('vdDate');
   if(inp) inp.value = today;
 });
+
+
+
+// ── AUTH ────────────────────────────────────────────────────────────
+const _PWD_HASH = 'a956b0bb1fc158c12a6b1e3e4a9a6f0030b82f3a74daa77d086f646b3f9c657f';
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  var pwd = document.getElementById('login-pwd').value;
+  var h = await sha256(pwd);
+  if (h === _PWD_HASH) {
+    sessionStorage.setItem('fius_auth','1');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('login-err').textContent = '';
+  } else {
+    var err = document.getElementById('login-err');
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+// Check session on load
+(function(){
+  if(sessionStorage.getItem('fius_auth') === '1') {
+    document.getElementById('login-screen').classList.add('hidden');
+  } else {
+    setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+  }
+})();
 
 </script>
 </body>
