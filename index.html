@@ -328,6 +328,39 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
     <div class="cx-grid" id="cxGrid"></div>
   </div>
 
+
+  <!-- ⑤ VOLUMETRIA DIÁRIA -->
+  <div class="page" id="page-diaria">
+    <div class="sec">Volumetria Diária</div>
+
+    <!-- Date selector -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+      <label style="font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Data</label>
+      <input type="date" id="vdDate" onchange="renderVD()"
+        style="background:var(--navy3);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 12px;color:var(--white);font-family:Verdana,sans-serif;font-size:12px;outline:none;cursor:pointer">
+      <div id="vdDayName" style="font-size:13px;color:var(--teal);font-weight:700"></div>
+      <div id="vdMonthName" style="font-size:12px;color:var(--gray)"></div>
+    </div>
+
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" id="vdKpis"></div>
+
+    <!-- Charts row -->
+    <div class="vd-charts" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+      <div class="vd-chart-card">
+        <div class="card-hdr"><div class="card-hdr-bar"></div><h3>Providências por Cliente</h3></div>
+        <div class="vd-chart-wrap"><canvas id="vdClientChart"></canvas></div>
+      </div>
+      <div class="vd-chart-card">
+        <div class="card-hdr"><div class="card-hdr-bar" style="background:var(--teal)"></div><h3>Providências por Área</h3></div>
+        <div class="vd-chart-wrap"><canvas id="vdAreaChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card" style="overflow:auto" id="vdTableWrap"></div>
+  </div>
+
 </div><!-- /container -->
 
 <!-- DRAWER -->
