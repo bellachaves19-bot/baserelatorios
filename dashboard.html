@@ -690,7 +690,7 @@ function renderVD() {
 
   // Table
   var rows=provs.map(function(p,i){
-    return '<tr onclick="openDrawer(''+p.Cliente.replace(/'/g,"\'")+'')" style="cursor:pointer">'+
+    return '<tr onclick="openDrawer(\x27'+p.Cliente.replace(/'/g,'\x27')+'\x27)" style="cursor:pointer">'+
       '<td style="color:#6d6e71;font-size:11px">'+(i+1)+'</td>'+
       '<td style="color:#f3f3f3;font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
       '<td>'+p.Area+'</td>'+
