@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --fius:#009edb; --navy:#111d30; --navy2:#152339; --navy3:#1a2b45;
+  --navy4:#21305a; --steel:#004561; --gray:#6d6e71; --gray-l:#f3f3f3;
+  --white:#ffffff; --teal:#68c4d4; --purple:#494092; --blue:#304f9d;
+  --green:#8ebf22; --green2:#58b031; --yellow:#efc517;
+  --orange:#ea5627; --red:#bb274b;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--white);font-family:Verdana,Geneva,sans-serif;font-size:13px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+
+/* ── HEADER ── */
+header{background:var(--navy2);border-bottom:1px solid rgba(0,158,219,.2);padding:0 36px;height:66px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.5)}
+.logo-wrap{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.logo-svg{width:40px;height:40px}
+.logo-div{width:1px;height:30px;background:rgba(0,158,219,.3)}
+.hdr-title{font-size:14px;font-weight:700;color:var(--white);letter-spacing:-.2px}
+.hdr-sub{font-size:10px;color:var(--teal);margin-top:2px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.badge{background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.35);color:var(--fius);padding:4px 13px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-date{color:#ccc;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
+.pulse{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── TABS ── */
+.tabs{background:var(--navy2);border-bottom:1px solid rgba(0,158,219,.15);padding:0 36px;display:flex;gap:0}
+.tab{padding:12px 22px;font-size:11px;font-weight:700;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.4px;text-transform:uppercase;transition:all .15s;user-select:none}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--fius);border-bottom-color:var(--fius)}
+
+/* ── CONTAINER ── */
+.container{max-width:1380px;margin:0 auto;padding:24px 36px 40px}
+.page{display:none}.page.active{display:block}
+
+/* ── SECTION TITLE ── */
+.sec{font-size:10px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.sec::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(0,158,219,.3),transparent)}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.kpi{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;cursor:default}
+.kpi:hover{border-color:rgba(0,158,219,.35);transform:translateY(-2px)}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;background:var(--c,var(--fius))}
+.kpi-label{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.7px}
+.kpi-value{font-size:40px;font-weight:700;line-height:1;color:var(--c,var(--fius));margin:8px 0 5px}
+.kpi-sub{font-size:10px;color:var(--gray)}
+
+/* ── CARDS ── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px}
+.card.wide{grid-column:span 2}
+.card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.card-hdr-bar{width:3px;height:15px;border-radius:2px;background:var(--c,var(--fius));flex-shrink:0}
+.card-hdr h3{font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px}
+.card-hdr .cnt{margin-left:auto;font-size:11px;color:var(--gray);font-weight:700}
+.chart-wrap{position:relative;height:215px}
+.legend{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:14px}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gray)}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── AREA BARS ── */
+.area-list{display:flex;flex-direction:column;gap:7px}
+.area-row{display:flex;align-items:center;gap:10px}
+.area-name{width:205px;font-size:11px;color:rgba(243,243,243,.85);text-align:right;flex-shrink:0}
+.area-track{flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:17px;overflow:hidden}
+.area-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:7px;font-size:10px;font-weight:700;color:rgba(255,255,255,.9);min-width:28px}
+.area-num{width:30px;font-size:11px;color:var(--gray);font-weight:700;text-align:right;flex-shrink:0}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.fi{position:relative}
+.fi-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:12px;pointer-events:none}
+.filters input,.filters select{background:var(--navy3);border:1px solid rgba(255,255,255,.1);color:var(--white);padding:8px 10px 8px 28px;border-radius:7px;font-size:11px;font-family:Verdana,sans-serif;outline:none;appearance:none;transition:border-color .2s}
+.filters input{flex:1;min-width:200px}
+.filters select{min-width:170px;cursor:pointer;padding-right:24px}
+.filters input:focus,.filters select:focus{border-color:var(--fius)}
+.filters input::placeholder{color:var(--gray)}
+.fcnt{margin-left:auto;font-size:11px;color:var(--gray)}
+
+/* ── TABLE ── */
+.tbl-card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px;margin-top:14px}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:2px solid rgba(0,158,219,.2)}
+thead th{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;padding:8px 13px;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s;cursor:pointer}
+tbody tr:hover{background:rgba(0,158,219,.07)}
+tbody td{padding:10px 13px;vertical-align:middle}
+.click-hint{font-size:10px;color:var(--gray);margin-left:auto}
+
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.cx  {background:rgba(0,158,219,.12);color:#009edb;border:1px solid rgba(0,158,219,.3)}
+.trab{background:rgba(73,64,146,.18);color:#8b84d6;border:1px solid rgba(73,64,146,.35)}
+.mt  {background:rgba(104,196,212,.12);color:#68c4d4;border:1px solid rgba(104,196,212,.3)}
+.mc  {background:rgba(48,79,157,.18);color:#7090d8;border:1px solid rgba(48,79,157,.35)}
+.au  {background:rgba(109,110,113,.12);color:#9d9ea0;border:1px solid rgba(109,110,113,.3)}
+.etag{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.ecj  {background:rgba(0,158,219,.12);color:#009edb;border:1px solid rgba(0,158,219,.3)}
+.etrab{background:rgba(142,191,34,.12);color:#8ebf22;border:1px solid rgba(142,191,34,.3)}
+.eboth{background:rgba(239,197,23,.12);color:#efc517;border:1px solid rgba(239,197,23,.3)}
+.nr-b{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.25);font-size:11px;font-weight:700;color:var(--fius)}
+
+/* ── PAGINATION ── */
+.pag{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:13px;border-top:1px solid rgba(255,255,255,.06)}
+.pag-info{font-size:11px;color:var(--gray)}
+.pag-btns{display:flex;gap:6px}
+.pbtn{background:var(--navy3);border:1px solid rgba(255,255,255,.1);color:var(--white);padding:6px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-family:Verdana,sans-serif;font-weight:700;transition:all .15s}
+.pbtn:hover:not(:disabled){background:var(--fius);border-color:var(--fius)}
+.pbtn:disabled{opacity:.25;cursor:not-allowed}
+
+/* ── DRAWER (painel lateral) ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:95vw;background:var(--navy2);border-left:1px solid rgba(0,158,219,.25);z-index:301;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden;box-shadow:-8px 0 40px rgba(0,0,0,.5)}
+.drawer.open{transform:translateX(0)}
+.drawer-header{padding:20px 24px;border-bottom:1px solid rgba(0,158,219,.2);background:var(--navy3);flex-shrink:0}
+.drawer-close{float:right;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--white);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:16px;line-height:28px;text-align:center;transition:background .15s}
+.drawer-close:hover{background:rgba(0,158,219,.25)}
+.drawer-cat{font-size:10px;color:var(--gray);margin-bottom:6px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.drawer-title{font-size:17px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:12px;padding-right:40px}
+.drawer-meta{display:flex;gap:8px;flex-wrap:wrap}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
+.drawer-body::-webkit-scrollbar{width:4px}
+.drawer-body::-webkit-scrollbar-track{background:transparent}
+.drawer-body::-webkit-scrollbar-thumb{background:rgba(0,158,219,.3);border-radius:2px}
+
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.info-box{background:var(--navy4);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 14px}
+.info-box-label{font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.info-box-value{font-size:13px;color:var(--white);font-weight:600}
+
+/* Providências list */
+.prov-section-title{font-size:10px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.prov-section-title::after{content:'';flex:1;height:1px;background:rgba(0,158,219,.25)}
+.prov-card{background:var(--navy3);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:14px 16px;margin-bottom:10px;transition:border-color .15s}
+.prov-card:hover{border-color:rgba(0,158,219,.3)}
+.prov-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.prov-area-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,158,219,.15);border:1px solid rgba(0,158,219,.25);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.prov-area-name{font-size:13px;font-weight:700;color:var(--white);line-height:1.3}
+.prov-type{font-size:10px;color:var(--gray);margin-top:2px}
+.prov-prazo{margin-left:auto;text-align:right;flex-shrink:0}
+.prazo-label{font-size:9px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.prazo-value{font-size:12px;font-weight:700;margin-top:2px}
+.prazo-ok{color:var(--green)}
+.prazo-warn{color:var(--yellow)}
+.prazo-over{color:var(--orange)}
+.prov-obs{font-size:11px;color:rgba(243,243,243,.6);line-height:1.6;border-top:1px solid rgba(255,255,255,.06);padding-top:9px;margin-top:4px}
+
+/* Envio Trabalhista page */
+.trab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.trab-mini{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .18s,transform .18s}
+.trab-mini:hover{border-color:rgba(0,158,219,.4);transform:translateY(-2px)}
+.trab-mini-cat{font-size:9px;color:var(--gray);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.trab-mini-name{font-size:12px;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.3}
+.trab-mini-prazo{font-size:10px}
+
+/* CX page */
+.cx-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.cx-card{background:var(--navy2);border:1px solid rgba(0,158,219,.2);border-radius:10px;padding:16px 18px;cursor:pointer;transition:border-color .18s,transform .18s}
+.cx-card:hover{border-color:rgba(0,158,219,.5);transform:translateY(-2px)}
+.cx-empresa{font-size:10px;color:var(--teal);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.cx-cliente{font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px}
+.cx-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Footer */
+footer{background:var(--navy2);border-top:1px solid rgba(0,158,219,.12);padding:16px 36px;display:flex;align-items:center;gap:14px}
+footer svg{width:26px;height:26px;opacity:.4;flex-shrink:0}
+footer p{font-size:10px;color:var(--gray);line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-wrap">
+    <svg class="logo-svg" viewBox="0 0 88 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left vertical bar (full height) -->
+  <rect x="0"  y="0"   width="13" height="110" fill="#009edb"/>
+  <!-- Top horizontal bar (left → ~67%) -->
+  <rect x="0"  y="0"   width="60" height="13"  fill="#009edb"/>
+  <!-- Top-right stub (short vertical at top right) -->
+  <rect x="75" y="0"   width="13" height="26"  fill="#009edb"/>
+  <!-- Right vertical bar (bottom half) -->
+  <rect x="75" y="55"  width="13" height="55"  fill="#009edb"/>
+  <!-- Bottom horizontal bar (right ← to ~35%) -->
+  <rect x="28" y="97"  width="60" height="13"  fill="#009edb"/>
+</svg>
+    <div class="logo-div"></div>
+    <div>
+      <div class="hdr-title">Volumetria de Relatórios</div>
+      <div class="hdr-sub">FINOCCHIO &amp; USTRA ADVOGADOS · SMART REPORT</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="badge"><span class="pulse"></span>Ativo</div>
+    <div class="badge badge-date">Atualização: {{DATA_ATUALIZACAO}}</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showPage('dashboard')">Dashboard</div>
+  <div class="tab" onclick="showPage('clientes')">Todos os Clientes</div>
+  <div class="tab" onclick="showPage('trabalhista')">Envio Trabalhista</div>
+  <div class="tab" onclick="showPage('cx')">Clientes CX</div>
+</div>
+
+<!-- PAGES -->
+<div class="container">
+
+  <!-- ① DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="sec">Resumo Executivo</div>
+    <div class="kpi-grid">
+      <div class="kpi" style="--c:#009edb"><div class="kpi-bar"></div><div class="kpi-label">Total de Clientes</div><div class="kpi-value">{{TOTAL_CLIENTES}}</div><div class="kpi-sub">5 categorias ativas</div></div>
+      <div class="kpi" style="--c:#68c4d4"><div class="kpi-bar"></div><div class="kpi-label">Total de Providências</div><div class="kpi-value">{{TOTAL_PROVIDENCIAS}}</div><div class="kpi-sub">Cadastradas e ativas</div></div>
+      <div class="kpi" style="--c:#efc517"><div class="kpi-bar"></div><div class="kpi-label">Clientes CX — Cat. 1</div><div class="kpi-value">{{TOTAL_CX}}</div><div class="kpi-sub">Com Key Account dedicado</div></div>
+      <div class="kpi" style="--c:#8ebf22"><div class="kpi-bar"></div><div class="kpi-label">Fluxo Trabalhista</div><div class="kpi-value">{{TOTAL_TRAB_CLI}}</div><div class="kpi-sub">Envio diferenciado</div></div>
+    </div>
+
+    <div class="sec">Distribuição</div>
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-hdr"><div class="card-hdr-bar"></div><h3>Clientes por Categoria</h3><span class="cnt">255 total</span></div>
+        <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+        <div class="legend" id="catLeg"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-hdr-bar" style="background:#68c4d4"></div><h3>Tipo de Envio</h3><span class="cnt">255 total</span></div>
+        <div class="chart-wrap"><canvas id="envioChart"></canvas></div>
+        <div class="legend" id="envioLeg"></div>
+      </div>
+      <div class="card wide">
+        <div class="card-hdr"><div class="card-hdr-bar" style="background:#8ebf22"></div><h3>Providências por Área Jurídica</h3><span class="cnt">448 total</span></div>
+        <div class="area-list" id="areaBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② TODOS OS CLIENTES -->
+  <div class="page" id="page-clientes">
+    <div class="sec">Painel de Clientes — clique em um cliente para ver os detalhes</div>
+    <div class="tbl-card">
+      <div class="filters">
+        <div class="fi" style="flex:1"><span class="fi-icon">🔍</span><input type="text" id="searchInput" placeholder="Buscar por cliente ou Key Account..."></div>
+        <div class="fi"><span class="fi-icon">🏷</span>
+          <select id="catFilter">
+            <option value="">Todas as Categorias</option>
+            <option value="CX">★ Cat. 1 — CX</option>
+            <option value="Trabalhista">◆ Cat. 2 — Trabalhista</option>
+            <option value="Multi-área · Trabalhista">● Cat. 3 — Multi-área · Trab.</option>
+            <option value="Multi-área · C.J.">● Cat. 4 — Multi-área · C.J.</option>
+            <option value="Área única">○ Cat. 5 — Área única</option>
+          </select>
+        </div>
+        <div class="fi"><span class="fi-icon">📨</span>
+          <select id="envioFilter">
+            <option value="">Todos os Envios</option>
+            <option value="C.J.">Somente C.J.</option>
+            <option value="Trabalhista">Somente Trabalhista</option>
+            <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+          </select>
+        </div>
+        <span class="fcnt" id="filterCount"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th style="width:38px">#</th>
+            <th>Categoria</th>
+            <th>Cliente</th>
+            <th>Key Account</th>
+            <th>Tipo de Envio</th>
+            <th style="text-align:center;width:60px">Áreas</th>
+            <th style="width:80px;color:#009edb;font-size:9px">DETALHES</th>
+          </tr></thead>
+          <tbody id="clientTable"></tbody>
+        </table>
+      </div>
+      <div class="pag">
+        <span class="pag-info" id="pageInfo"></span>
+        <div class="pag-btns">
+          <button class="pbtn" id="btnPrev" onclick="changePage(-1)">&#8592; Anterior</button>
+          <button class="pbtn" id="btnNext" onclick="changePage(1)">Próximo &#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ ENVIO TRABALHISTA -->
+  <div class="page" id="page-trabalhista">
+    <div class="sec">Envio Trabalhista — Fluxo Diferenciado</div>
+    <div class="trab-grid" id="trabGrid"></div>
+  </div>
+
+  <!-- ④ CLIENTES CX -->
+  <div class="page" id="page-cx">
+    <div class="sec">Clientes CX — Gestão Estratégica</div>
+    <div class="cx-grid" id="cxGrid"></div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- DRAWER -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div class="drawer-cat" id="d-cat"></div>
+    <div class="drawer-title" id="d-title"></div>
+    <div class="drawer-meta" id="d-meta"></div>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <svg viewBox="0 0 88 110" width="26" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left vertical bar (full height) -->
+  <rect x="0"  y="0"   width="13" height="110" fill="#009edb"/>
+  <!-- Top horizontal bar (left → ~67%) -->
+  <rect x="0"  y="0"   width="60" height="13"  fill="#009edb"/>
+  <!-- Top-right stub (short vertical at top right) -->
+  <rect x="75" y="0"   width="13" height="26"  fill="#009edb"/>
+  <!-- Right vertical bar (bottom half) -->
+  <rect x="75" y="55"  width="13" height="55"  fill="#009edb"/>
+  <!-- Bottom horizontal bar (right ← to ~35%) -->
+  <rect x="28" y="97"  width="60" height="13"  fill="#009edb"/>
+</svg>
+  <p><strong style="color:#f3f3f3">Finocchio &amp; Ustra Advogados</strong> · Base: Smart Report — CLI_Providencias_Cont_003<br>
+  Providências atualmente cadastradas/ativas. Não há marcação de "cancelado" nesta extração.</p>
+</footer>
+
+<script>
+const CLIENTES = {{CLIENTES_JSON}};
+const PROVIDENCIAS = {{PROVIDENCIAS_JSON}};
+const CX_MAP = {{CX_MAP_JSON}};
+
+// ── TABS ───────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'trabalhista') renderTrab();
+  if (id === 'cx')          renderCX();
+}
+
+// ── CHARTS ─────────────────────────────────────────────────────────
+Chart.defaults.color = '#6d6e71';
+Chart.defaults.font.family = 'Verdana,Geneva,sans-serif';
+Chart.defaults.font.size = 10;
+
+const catC = ['#009edb','#494092','#68c4d4','#304f9d','#6d6e71'];
+const catL = ['★ Cat. 1 — CX','◆ Cat. 2 — Trabalhista','● Cat. 3 — Multi·Trab.','● Cat. 4 — Multi·C.J.','○ Cat. 5 — Área única'];
+const catV = {{CAT_VALUES_JSON}};
+new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catL,datasets:[{data:catV,backgroundColor:catC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+const cL=document.getElementById('catLeg');catL.forEach((l,i)=>{cL.innerHTML+=`<div class="li"><div class="ld" style="background:${catC[i]}"></div><span>${l} (${catV[i]})</span></div>`;});
+
+const envC=['#009edb','#8ebf22','#efc517'];
+const envL=['Somente C.J.','Somente Trabalhista','C.J. + Trabalhista'];
+const envV={{ENVIO_VALUES_JSON}};
+new Chart(document.getElementById('envioChart'),{type:'doughnut',data:{labels:envL,datasets:[{data:envV,backgroundColor:envC,borderWidth:2,borderColor:'#152339',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+const eL=document.getElementById('envioLeg');envL.forEach((l,i)=>{eL.innerHTML+=`<div class="li"><div class="ld" style="background:${envC[i]}"></div><span>${l} (${envV[i]})</span></div>`;});
+
+const AREA_COLORS={'Tributário Judicial':'#009edb','Trabalhista':'#494092','Cível':'#304f9d','Tributário Administrativo':'#68c4d4','Recuperação Judicial':'#8ebf22','Ambiental':'#58b031','Aduaneiro':'#efc517','Penal Empresarial':'#ea5627','Compliance':'#75398e','Contratual':'#ac1b82','Societário':'#bb274b','Aduaneiro':'#efc517','RJ/Bancário':'#ea5627','Tributário Consultivo':'#68c4d4','Comercial':'#8ebf22'};
+const AREA_COUNTS_RAW = {{AREA_COUNTS_JSON}};
+const areaData=Object.entries(AREA_COUNTS_RAW).slice(0,10).map(([n,v])=>[n,v,AREA_COLORS[n]||'#6d6e71']);
+const aB=document.getElementById('areaBars');
+areaData.forEach(([n,v,c])=>{const p=(v/121*100).toFixed(1);aB.innerHTML+=`<div class="area-row"><div class="area-name">${n}</div><div class="area-track"><div class="area-fill" style="width:${p}%;background:${c}">${v}</div></div><div class="area-num">${v}</div></div>`;});
+
+// ── TABLE ───────────────────────────────────────────────────────────
+let curPage=1; const PS=15; let filtered=[...CLIENTES];
+function catTag(c){const m={'CX':['cx','★ CX'],'Trabalhista':['trab','◆ Trabalhista'],'Multi-área · Trabalhista':['mt','● Multi·Trab.'],'Multi-área · C.J.':['mc','● Multi·C.J.'],'Área única':['au','○ Área única']};const[cl,lb]=m[c]||['au',c];return`<span class="tag ${cl}">${lb}</span>`;}
+function envTag(e){if(e==='C.J.')return'<span class="etag ecj">C.J.</span>';if(e==='Trabalhista')return'<span class="etag etrab">Trabalhista</span>';if(e==='C.J. + Trabalhista')return'<span class="etag eboth">C.J.+Trab.</span>';return e;}
+
+function renderTable(){
+  const st=(curPage-1)*PS;
+  const sl=filtered.slice(st,st+PS);
+  document.getElementById('clientTable').innerHTML=sl.map((c,i)=>`
+    <tr onclick="openDrawer('${escQ(c.Cliente)}')">
+      <td style="color:#6d6e71;font-size:11px">${st+i+1}</td>
+      <td>${catTag(c.Classificacao)}</td>
+      <td style="color:#f3f3f3;font-weight:700;font-size:12px">${c.Cliente}</td>
+      <td style="color:#6d6e71">${c.KeyAccount||'—'}</td>
+      <td>${envTag(c.TipoEnvio)}</td>
+      <td style="text-align:center"><span class="nr-b">${c.NrAreas||'—'}</span></td>
+      <td style="color:#009edb;font-size:10px;font-weight:700">Ver mais ›</td>
+    </tr>`).join('');
+  const tot=filtered.length;
+  document.getElementById('pageInfo').textContent=`Exibindo ${st+1}–${Math.min(st+PS,tot)} de ${tot} clientes`;
+  document.getElementById('filterCount').textContent=filtered.length<CLIENTES.length?`${filtered.length} de ${CLIENTES.length}`:'';
+  document.getElementById('btnPrev').disabled=curPage===1;
+  document.getElementById('btnNext').disabled=curPage>=Math.ceil(tot/PS);
+}
+function escQ(s){return s.replace(/'/g,"\'")}
+function applyFilters(){
+  const s=document.getElementById('searchInput').value.toLowerCase();
+  const ca=document.getElementById('catFilter').value;
+  const en=document.getElementById('envioFilter').value;
+  filtered=CLIENTES.filter(c=>{
+    if(ca&&c.Classificacao!==ca)return false;
+    if(en&&c.TipoEnvio!==en)return false;
+    if(s&&!c.Cliente.toLowerCase().includes(s)&&!(c.KeyAccount||'').toLowerCase().includes(s))return false;
+    return true;
+  });
+  curPage=1;renderTable();
+}
+function changePage(d){curPage=Math.max(1,Math.min(curPage+d,Math.ceil(filtered.length/PS)));renderTable();}
+document.getElementById('searchInput').addEventListener('input',applyFilters);
+document.getElementById('catFilter').addEventListener('change',applyFilters);
+document.getElementById('envioFilter').addEventListener('change',applyFilters);
+renderTable();
+
+// ── DRAWER ─────────────────────────────────────────────────────────
+const AREA_ICON={
+  'Tributário Judicial':'⚖️','Trabalhista':'👷','Cível':'🏛️',
+  'Tributário Administrativo':'📑','Recuperação Judicial':'🔄',
+  'Ambiental':'🌿','Aduaneiro':'🚢','Penal Empresarial':'🔒',
+  'Compliance':'📋','Contratual':'📝','Societário':'🏢',
+  'Comercial':'💼','Tributário Consultivo':'💡',
+};
+function prazoColor(s){
+  if(!s)return'prazo-ok';
+  const d=new Date(s);const n=new Date();const diff=(d-n)/(1000*60*60*24);
+  if(diff<0)return'prazo-over';if(diff<30)return'prazo-warn';return'prazo-ok';
+}
+function fmtDate(s){
+  if(!s)return'—';
+  try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}catch{return s;}
+}
+
+function openDrawer(nome) {
+  const cli = CLIENTES.find(c => c.Cliente === nome);
+  if (!cli) return;
+  const provs = PROVIDENCIAS.filter(p => p.Cliente === nome);
+  const empresa = CX_MAP[nome] || '';
+
+  // Header
+  document.getElementById('d-cat').textContent =
+    (cli.Cat || '') + (empresa ? '  ·  Empresa: ' + empresa : '');
+  document.getElementById('d-title').textContent = cli.Cliente;
+
+  // Meta tags
+  const meta = document.getElementById('d-meta');
+  meta.innerHTML = '';
+  const addTag = (txt, cls) => { meta.innerHTML += `<span class="etag ${cls}" style="font-size:11px">${txt}</span>`; };
+  addTag(catLabel(cli.Classificacao), catCls(cli.Classificacao));
+  addTag(cli.TipoEnvio, cli.TipoEnvio==='C.J.'?'ecj':cli.TipoEnvio==='Trabalhista'?'etrab':'eboth');
+  if (cli.KeyAccount) addTag('KA: '+cli.KeyAccount, 'ecj');
+  addTag(cli.NrAreas + (cli.NrAreas===1?' área':' áreas'), 'au');
+
+  // Body
+  let body = '';
+
+  // Info boxes
+  body += '<div class="info-grid">';
+  body += `<div class="info-box"><div class="info-box-label">Classificação</div><div class="info-box-value">${cli.Classificacao||'—'}</div></div>`;
+  body += `<div class="info-box"><div class="info-box-label">Key Account</div><div class="info-box-value">${cli.KeyAccount||'—'}</div></div>`;
+  body += `<div class="info-box"><div class="info-box-label">Tipo de Envio</div><div class="info-box-value">${cli.TipoEnvio||'—'}</div></div>`;
+  body += `<div class="info-box"><div class="info-box-label">Nº de Áreas</div><div class="info-box-value">${cli.NrAreas||'—'}</div></div>`;
+  if (cli.Areas_CJ && cli.Areas_CJ !== '—') body += `<div class="info-box" style="grid-column:span 2"><div class="info-box-label">Áreas — C.J.</div><div class="info-box-value" style="font-size:12px">${cli.Areas_CJ}</div></div>`;
+  if (cli.Areas_Trab && cli.Areas_Trab !== '—') body += `<div class="info-box" style="grid-column:span 2"><div class="info-box-label">Áreas — Trabalhista</div><div class="info-box-value" style="font-size:12px">${cli.Areas_Trab}</div></div>`;
+  body += '</div>';
+
+  // Providências
+  if (provs.length) {
+    body += `<div class="prov-section-title">${provs.length} Providência${provs.length>1?'s':''} Cadastrada${provs.length>1?'s':''}</div>`;
+    provs.forEach(p => {
+      const icon = AREA_ICON[p.Area] || '📄';
+      const pcls = prazoColor(p.PrazoFatal);
+      body += `
+        <div class="prov-card">
+          <div class="prov-card-top">
+            <div class="prov-area-icon">${icon}</div>
+            <div style="flex:1">
+              <div class="prov-area-name">${p.Area||'—'}</div>
+              <div class="prov-type">${p.TipoEnvio||''} ${p.Classificacao?'· '+p.Classificacao:''}</div>
+            </div>
+            <div class="prov-prazo">
+              <div class="prazo-label">Prazo Fatal</div>
+              <div class="prazo-value ${pcls}">${fmtDate(p.PrazoFatal)}</div>
+            </div>
+          </div>
+          ${p.Obs ? `<div class="prov-obs">${p.Obs}</div>` : ''}
+        </div>`;
+    });
+  } else {
+    body += '<p style="color:#6d6e71;font-size:12px;text-align:center;padding:24px 0">Nenhuma providência encontrada.</p>';
+  }
+
+  document.getElementById('drawer-body').innerHTML = body;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
+
+function catLabel(c){return {'CX':'★ CX','Trabalhista':'◆ Trabalhista','Multi-área · Trabalhista':'● Multi·Trab.','Multi-área · C.J.':'● Multi·C.J.','Área única':'○ Área única'}[c]||c;}
+function catCls(c){return {'CX':'cx','Trabalhista':'trab','Multi-área · Trabalhista':'mt','Multi-área · C.J.':'mc','Área única':'au'}[c]||'au';}
+
+// ── TRABALHISTA PAGE ────────────────────────────────────────────────
+function renderTrab() {
+  const trab = PROVIDENCIAS.filter(p => p.TipoEnvio === 'Trabalhista');
+  const byClient = {};
+  trab.forEach(p => {
+    if (!byClient[p.Cliente]) byClient[p.Cliente] = {cat: p.Cat, classif: p.Classificacao, provs: []};
+    byClient[p.Cliente].provs.push(p);
+  });
+  const g = document.getElementById('trabGrid');
+  g.innerHTML = '';
+  Object.entries(byClient).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([nome, info]) => {
+    const prazo = info.provs[0]?.PrazoFatal;
+    const pcls  = prazoColor(prazo);
+    g.innerHTML += `
+      <div class="trab-mini" onclick="openDrawer('${escQ(nome)}')">
+        <div class="trab-mini-cat">${info.cat||''} · ${info.classif||''}</div>
+        <div class="trab-mini-name">${nome}</div>
+        <div class="trab-mini-prazo ${pcls}">⏱ Próximo prazo: ${fmtDate(prazo)||'—'}</div>
+      </div>`;
+  });
+}
+
+// ── CX PAGE ─────────────────────────────────────────────────────────
+function renderCX() {
+  const cx = CLIENTES.filter(c => c.Classificacao === 'CX').sort((a,b)=>a.Cliente.localeCompare(b.Cliente));
+  const g = document.getElementById('cxGrid');
+  g.innerHTML = '';
+  cx.forEach(c => {
+    const empresa = CX_MAP[c.Cliente] || c.Cliente;
+    const nProvs  = PROVIDENCIAS.filter(p => p.Cliente === c.Cliente).length;
+    g.innerHTML += `
+      <div class="cx-card" onclick="openDrawer('${escQ(c.Cliente)}')">
+        <div class="cx-empresa">${empresa}</div>
+        <div class="cx-cliente">${c.Cliente}</div>
+        <div class="cx-meta">
+          ${envTag(c.TipoEnvio)}
+          <span class="etag au" style="font-size:10px">KA: ${c.KeyAccount||'—'}</span>
+          <span class="etag ecj" style="font-size:10px">${c.NrAreas} área${c.NrAreas!==1?'s':''}</span>
+          <span class="etag" style="background:rgba(239,197,23,.1);color:#efc517;border:1px solid rgba(239,197,23,.25);font-size:10px">${nProvs} prov.</span>
+        </div>
+      </div>`;
+  });
+}
+</script>
+</body>
+</html>

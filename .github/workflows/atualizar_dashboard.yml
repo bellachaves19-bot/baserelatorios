@@ -1,0 +1,44 @@
+name: Atualizar Dashboard
+
+on:
+  push:
+    paths:
+      - 'dados/Volumetria_Relatorios.xlsx'   # dispara ao subir novo Excel
+  workflow_dispatch:                          # ou manualmente pelo GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: pip install pandas openpyxl
+
+      - name: Gerar dashboard.html
+        run: python gerar_dashboard.py
+
+      - name: Copiar para gh-pages
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Salva o dashboard gerado
+          cp dashboard.html /tmp/dashboard_novo.html
+
+          # Vai para gh-pages e atualiza
+          git fetch origin gh-pages
+          git checkout gh-pages
+          cp /tmp/dashboard_novo.html index.html
+          git add index.html
+          git diff --staged --quiet || git commit -m "Auto: dashboard atualizado $(date '+%d/%m/%Y %H:%M')"
+          git push origin gh-pages
