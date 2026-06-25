@@ -1180,10 +1180,22 @@ function renderCumpridos() {
 
 
 // Inicializa com hoje
+// ── SYNC: garante que toda completion tem sua ocorrência virtual ──
+function syncVirtualOccurrences() {
+  var completions = getCompletions();
+  completions.forEach(function(c) {
+    if (c.nextDate) {
+      addVirtualOccurrence(c.cliente, c.area, c.nextDate, c.tipoEnvio, c.obs || '', c.prazoFatal);
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function(){
   var today = new Date().toISOString().split('T')[0];
   var inp = document.getElementById('vdDate');
   if(inp) inp.value = today;
+  // Sync virtual occurrences for all existing completions
+  syncVirtualOccurrences();
 });
 
 
