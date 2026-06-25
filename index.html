@@ -254,6 +254,25 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
 .login-footer {
   margin-top:36px;font-size:10px;color:rgba(109,110,113,.6);text-align:center;
 }
+
+/* ── VD CHECK ── */
+.vd-check-btn {
+  width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+  background:transparent;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .18s;flex-shrink:0;
+}
+.vd-check-btn:hover { border-color:var(--green2); }
+.vd-check-btn.checked { background:var(--green2);border-color:var(--green2); }
+.vd-check-btn svg { display:none; }
+.vd-check-btn.checked svg { display:block; }
+tr.sent td { opacity:.45; }
+tr.sent td:first-child { opacity:1; }
+.vd-sent-badge {
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;color:var(--green2);
+  background:rgba(88,176,49,.12);border:1px solid rgba(88,176,49,.3);
+  border-radius:20px;padding:3px 8px;margin-left:10px;
+}
 </style>
 </head>
 <body>
@@ -813,20 +832,86 @@ function renderVD() {
   });
 
   // Table
-  var rows=provs.map(function(p,i){
-    return '<tr onclick="openDrawer(\x27'+p.Cliente.replace(/'/g,'\x27')+'\x27)" style="cursor:pointer">'+
+  var sentKey = 'fius_sent_' + val;
+  var sentSet = JSON.parse(localStorage.getItem(sentKey) || '[]');
+
+  var sentCount = sentSet.length;
+  var sentBadge = sentCount > 0
+    ? '<span class="vd-sent-badge">✓ '+sentCount+' enviado'+(sentCount!==1?'s':'')+'</span>'
+    : '';
+
+  var rows = provs.map(function(p, i) {
+    var key = i + '|' + p.Cliente + '|' + p.Area;
+    var isSent = sentSet.indexOf(key) !== -1;
+    var checkCls = isSent ? 'vd-check-btn checked' : 'vd-check-btn';
+    var rowCls = isSent ? 'sent' : '';
+    return '<tr class="'+rowCls+'" id="vd-row-'+i+'">'+
+      '<td style="width:42px;padding:8px 6px">'+
+        '<button class="'+checkCls+'" onclick="toggleSent(event,\''+val+'\','+i+',\''+p.Cliente.replace(/'/g,'\x27')+'\',\''+p.Area.replace(/'/g,'\x27')+'\')">'+
+          '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        '</button>'+
+      '</td>'+
       '<td style="color:#6d6e71;font-size:11px">'+(i+1)+'</td>'+
-      '<td style="color:#f3f3f3;font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td style="font-weight:700;font-size:12px;cursor:pointer" onclick="openDrawer(\x27'+p.Cliente.replace(/'/g,'\x27')+'\x27)">'+p.Cliente+'</td>'+
       '<td>'+p.Area+'</td>'+
       '<td>'+envTag(p.TipoEnvio)+'</td>'+
       '<td><span class="etag" style="background:rgba(0,158,219,.1);color:#009edb;border:1px solid rgba(0,158,219,.25);font-size:10px">'+vdTipo(p.Obs)+'</span></td>'+
-      '<td style="color:#6d6e71;font-size:11px;max-width:280px">'+(p.Obs||'—')+'</td>'+
+      '<td style="color:#6d6e71;font-size:11px;max-width:260px">'+(p.Obs||'—')+'</td>'+
     '</tr>';
   }).join('');
-  document.getElementById('vdTableWrap').innerHTML=
-    '<table><thead><tr>'+
-    '<th style="width:34px">#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>'+
-    '</tr></thead><tbody>'+rows+'</tbody></table>';
+
+  document.getElementById('vdTableWrap').innerHTML =
+    '<div style="display:flex;align-items:center;margin-bottom:14px">'+
+      '<h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px;margin:0">Providências do Dia</h3>'+
+      sentBadge+
+      '<button onclick="clearSent(\'' + val + '\')" style="margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Limpar checks</button>'+
+    '</div>'+
+    '<div style="overflow-x:auto"><table><thead><tr>'+
+    '<th style="width:42px">Enviado</th><th style="width:34px">#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function toggleSent(e, dateVal, idx, cliente, area) {
+  e.stopPropagation();
+  var key = idx + '|' + cliente + '|' + area;
+  var storKey = 'fius_sent_' + dateVal;
+  var sentSet = JSON.parse(localStorage.getItem(storKey) || '[]');
+  var pos = sentSet.indexOf(key);
+  if (pos === -1) sentSet.push(key);
+  else sentSet.splice(pos, 1);
+  localStorage.setItem(storKey, JSON.stringify(sentSet));
+
+  var btn = e.currentTarget;
+  var row = document.getElementById('vd-row-' + idx);
+  if (pos === -1) {
+    btn.classList.add('checked');
+    if (row) row.classList.add('sent');
+  } else {
+    btn.classList.remove('checked');
+    if (row) row.classList.remove('sent');
+  }
+
+  // Update badge
+  var badge = document.querySelector('.vd-sent-badge');
+  var total = sentSet.length;
+  if (total > 0) {
+    var txt = '✓ '+total+' enviado'+(total!==1?'s':'');
+    if (badge) badge.textContent = txt;
+    else {
+      var h3 = document.querySelector('#vdTableWrap h3');
+      if (h3) {
+        var sp = document.createElement('span');
+        sp.className = 'vd-sent-badge';
+        sp.textContent = txt;
+        h3.insertAdjacentElement('afterend', sp);
+      }
+    }
+  } else if (badge) badge.remove();
+}
+
+function clearSent(dateVal) {
+  localStorage.removeItem('fius_sent_' + dateVal);
+  renderVD();
 }
 
 // Inicializa com hoje
