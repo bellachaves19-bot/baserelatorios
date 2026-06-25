@@ -1323,10 +1323,10 @@ function renderCumpridos() {
       '<td style="font-weight:700;font-size:12px">'+c.cliente+'</td>'+
       '<td>'+c.area+'</td>'+
       '<td>'+envTag(c.tipoEnvio)+'</td>'+
-      '<td>'+c.prazoFatal.split('-').reverse().join('/')+'</td>'+
-      '<td style="color:var(--green2);font-weight:700">'+c.completedDate.split('-').reverse().join('/')+'</td>'+
+      '<td>'+(c.prazoFatal ? c.prazoFatal.split('-').reverse().join('/') : '—')+'</td>'+
+      '<td style="color:var(--green2);font-weight:700">'+(c.completedDate ? c.completedDate.split('-').reverse().join('/') : '—')+'</td>'+
       '<td>'+badge+'</td>'+
-      '<td style="color:var(--gray);font-size:10px">'+c.nextDate.split('-').reverse().join('/')+'</td>'+
+      '<td style="color:var(--gray);font-size:10px">'+(c.nextDate ? c.nextDate.split('-').reverse().join('/') : '—')+'</td>'+
       '<td><button class="undo-comp-btn" data-id="'+encodeURIComponent(c.id)+'" '+
         'style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Desfazer</button></td>'+
     '</tr>';
