@@ -273,6 +273,25 @@ tr.sent td:first-child { opacity:1; }
   background:rgba(88,176,49,.12);border:1px solid rgba(88,176,49,.3);
   border-radius:20px;padding:3px 8px;margin-left:10px;
 }
+
+/* ── ADMIN ── */
+.admin-tab {
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  padding:10px 18px;color:var(--gray);font-family:Verdana,sans-serif;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  cursor:pointer;transition:all .2s;
+}
+.admin-tab.active,.admin-tab:hover { color:var(--fius);border-bottom-color:var(--fius); }
+.adm-lbl { display:block;font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px; }
+.adm-inp {
+  width:100%;box-sizing:border-box;background:var(--navy3);
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  padding:9px 12px;color:var(--white);font-family:Verdana,sans-serif;font-size:12px;outline:none;
+  transition:border .2s;
+}
+.adm-inp:focus { border-color:var(--fius); }
+.adm-del { background:transparent;border:1px solid rgba(187,39,75,.35);border-radius:6px;padding:3px 8px;color:#bb274b;font-size:10px;cursor:pointer;font-family:Verdana,sans-serif; }
+.adm-del:hover { background:rgba(187,39,75,.12); }
 </style>
 </head>
 <body>
@@ -337,6 +356,7 @@ tr.sent td:first-child { opacity:1; }
   <div class="tab" onclick="showPage('diaria', this)">Volumetria Diária</div>
   <div class="tab" onclick="showPage('pendentes', this)">Pendentes</div>
   <div class="tab" onclick="showPage('cumpridos', this)">Cumpridos</div>
+  <div class="tab" onclick="showPage('admin', this)">⚙ Administração</div>
 </div>
 
 <!-- PAGES -->
@@ -505,6 +525,92 @@ tr.sent td:first-child { opacity:1; }
     <div class="card" style="overflow-x:auto;padding:0" id="cum-table"></div>
   </div>
 
+
+  <!-- ⑧ ADMINISTRAÇÃO -->
+  <div class="page" id="page-admin">
+    <div class="sec">Administração de Dados</div>
+
+    <!-- Import/Export bar -->
+    <div class="card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:16px 20px">
+      <span style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.6px">Base de dados:</span>
+      <span id="admin-source-badge" style="font-size:11px;color:var(--gray)">carregando...</span>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+        <label style="background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.3);border-radius:8px;padding:7px 14px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+          ↑ Importar JSON <input type="file" accept=".json" id="admin-import-file" style="display:none" onchange="importAdminData(this)">
+        </label>
+        <button onclick="exportAdminData()" style="background:rgba(88,176,49,.12);border:1px solid rgba(88,176,49,.3);border-radius:8px;padding:7px 14px;color:var(--green2);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">↓ Exportar JSON</button>
+        <button onclick="resetAdminData()" style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 14px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">↺ Restaurar original</button>
+      </div>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <button class="admin-tab active" onclick="switchAdminTab('relatorios',this)">Relatórios</button>
+      <button class="admin-tab" onclick="switchAdminTab('clientes',this)">Clientes</button>
+    </div>
+
+    <!-- Relatórios panel -->
+    <div id="admin-panel-relatorios">
+      <div class="card" style="margin-bottom:14px;padding:20px">
+        <h3 style="font-size:11px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:.7px;margin:0 0 16px">Adicionar Relatório</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="adm-lbl">Cliente</label><input class="adm-inp" id="nr-cliente" list="nr-clientes-list" placeholder="Nome do cliente"></div>
+          <div><label class="adm-lbl">Área</label><input class="adm-inp" id="nr-area" list="nr-areas-list" placeholder="Ex: Tributário Judicial"></div>
+          <div><label class="adm-lbl">Tipo de Envio</label>
+            <select class="adm-inp" id="nr-tipo">
+              <option value="C.J.">C.J.</option>
+              <option value="Trabalhista">Trabalhista</option>
+              <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+          <div><label class="adm-lbl">Prazo Fatal</label><input class="adm-inp" id="nr-prazo" type="date"></div>
+          <div style="grid-column:span 2"><label class="adm-lbl">Observações</label><input class="adm-inp" id="nr-obs" placeholder="Ex: Relatório Mensal - Cliente X - Envio todo dia 10"></div>
+        </div>
+        <button onclick="addRelatorio()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <span id="nr-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
+      </div>
+      <div class="card" style="overflow-x:auto;padding:0" id="admin-relat-table"></div>
+    </div>
+
+    <!-- Clientes panel -->
+    <div id="admin-panel-clientes" style="display:none">
+      <div class="card" style="margin-bottom:14px;padding:20px">
+        <h3 style="font-size:11px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:.7px;margin:0 0 16px">Adicionar Cliente</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="adm-lbl">Nome do Cliente</label><input class="adm-inp" id="nc-nome" placeholder="Razão social ou apelido"></div>
+          <div><label class="adm-lbl">Key Account</label><input class="adm-inp" id="nc-ka" placeholder="Nome do responsável"></div>
+          <div><label class="adm-lbl">Classificação</label>
+            <select class="adm-inp" id="nc-class">
+              <option value="CX">CX (Cat. 1)</option>
+              <option value="Trabalhista">Trabalhista (Cat. 2)</option>
+              <option value="Multi-área · Trabalhista">Multi-área · Trabalhista (Cat. 3)</option>
+              <option value="Multi-área · C.J.">Multi-área · C.J. (Cat. 4)</option>
+              <option value="Área única">Área única (Cat. 5)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div><label class="adm-lbl">Tipo de Envio</label>
+            <select class="adm-inp" id="nc-tipo">
+              <option value="C.J.">C.J.</option>
+              <option value="Trabalhista">Trabalhista</option>
+              <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+            </select>
+          </div>
+          <div><label class="adm-lbl">Áreas CJ (separadas por |)</label><input class="adm-inp" id="nc-areas" placeholder="Ex: Cível | Tributário Judicial"></div>
+        </div>
+        <button onclick="addCliente()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <span id="nc-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
+      </div>
+      <div class="card" style="overflow-x:auto;padding:0" id="admin-cli-table"></div>
+    </div>
+
+    <datalist id="nr-clientes-list"></datalist>
+    <datalist id="nr-areas-list"></datalist>
+  </div>
+
 </div><!-- /container -->
 
 <!-- DRAWER -->
@@ -553,6 +659,7 @@ function showPage(id, el) {
   if (id === 'diaria')      renderVD();
   if (id === 'pendentes')   renderPendentes();
   if (id === 'cumpridos')   renderCumpridos();
+  if (id === 'admin')       renderAdmin();
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────
@@ -1235,6 +1342,195 @@ async function doLogin() {
     setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
   }
 })();
+
+
+// ── ADMINISTRAÇÃO ────────────────────────────────────────────────
+var ADMIN_KEY = 'fius_admin_data';
+
+function getAdminData() {
+  var stored = localStorage.getItem(ADMIN_KEY);
+  if (stored) return JSON.parse(stored);
+  // Return copy of original embedded data
+  return {
+    clientes: JSON.parse(JSON.stringify(CLIENTES)),
+    providencias: JSON.parse(JSON.stringify(PROVIDENCIAS))
+  };
+}
+function saveAdminData(data) {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(data));
+}
+function isUsingCustomData() {
+  return !!localStorage.getItem(ADMIN_KEY);
+}
+
+function switchAdminTab(tab, el) {
+  document.querySelectorAll('.admin-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('admin-panel-relatorios').style.display = tab === 'relatorios' ? '' : 'none';
+  document.getElementById('admin-panel-clientes').style.display   = tab === 'clientes'   ? '' : 'none';
+  if (tab === 'relatorios') renderAdminRelat();
+  else renderAdminCli();
+}
+
+function renderAdmin() {
+  var data = getAdminData();
+  var badge = document.getElementById('admin-source-badge');
+  if (badge) badge.textContent = isUsingCustomData()
+    ? '✎ Dados personalizados (' + data.providencias.length + ' relatórios, ' + data.clientes.length + ' clientes)'
+    : '● Dados originais da planilha (' + data.providencias.length + ' relatórios, ' + data.clientes.length + ' clientes)';
+
+  // Populate datalists
+  var cliList = document.getElementById('nr-clientes-list');
+  var areaList = document.getElementById('nr-areas-list');
+  if (cliList) {
+    var cliNames = [...new Set(data.clientes.map(function(c){ return c.Cliente; }))].sort();
+    cliList.innerHTML = cliNames.map(function(n){ return '<option value="'+n.replace(/"/g,'&quot;')+'">'; }).join('');
+  }
+  if (areaList) {
+    var areas = [...new Set(data.providencias.map(function(p){ return p.Area; }))].sort();
+    areaList.innerHTML = areas.map(function(a){ return '<option value="'+a.replace(/"/g,'&quot;')+'">'; }).join('');
+  }
+  renderAdminRelat();
+}
+
+function renderAdminRelat() {
+  var data = getAdminData();
+  var provs = data.providencias;
+  if (!provs.length) {
+    document.getElementById('admin-relat-table').innerHTML = '<div style="padding:20px;color:var(--gray);text-align:center;font-size:12px">Nenhum relatório cadastrado.</div>';
+    return;
+  }
+  var rows = provs.map(function(p, i) {
+    var prazoFmt = p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—';
+    return '<tr>'+
+      '<td style="color:#6d6e71;font-size:11px;width:32px">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+envTag(p.TipoEnvio)+'</td>'+
+      '<td style="color:var(--gray);font-size:11px">'+prazoFmt+'</td>'+
+      '<td style="color:var(--gray);font-size:10px;max-width:220px">'+( p.Obs||'—' )+'</td>'+
+      '<td><button class="adm-del" onclick="deleteRelatorio('+i+')">✕ Remover</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('admin-relat-table').innerHTML =
+    '<table><thead><tr><th>#</th><th>Cliente</th><th>Área</th><th>Tipo</th><th>Prazo</th><th>Observações</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderAdminCli() {
+  var data = getAdminData();
+  var clis = data.clientes;
+  if (!clis.length) {
+    document.getElementById('admin-cli-table').innerHTML = '<div style="padding:20px;color:var(--gray);text-align:center;font-size:12px">Nenhum cliente cadastrado.</div>';
+    return;
+  }
+  var rows = clis.map(function(c, i) {
+    return '<tr>'+
+      '<td style="color:#6d6e71;font-size:11px;width:32px">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;font-size:12px">'+c.Cliente+'</td>'+
+      '<td style="color:var(--gray);font-size:11px">'+( c.KeyAccount||'—' )+'</td>'+
+      '<td>'+envTag(c.TipoEnvio)+'</td>'+
+      '<td style="font-size:11px;color:var(--gray)">'+( c.Classificacao||'—' )+'</td>'+
+      '<td style="font-size:10px;color:var(--gray);max-width:200px">'+( c.Areas_CJ||'—' )+'</td>'+
+      '<td><button class="adm-del" onclick="deleteCliente('+i+')">✕ Remover</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('admin-cli-table').innerHTML =
+    '<table><thead><tr><th>#</th><th>Cliente</th><th>Key Account</th><th>Tipo</th><th>Classificação</th><th>Áreas CJ</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function addRelatorio() {
+  var cli   = document.getElementById('nr-cliente').value.trim();
+  var area  = document.getElementById('nr-area').value.trim();
+  var tipo  = document.getElementById('nr-tipo').value;
+  var prazo = document.getElementById('nr-prazo').value;
+  var obs   = document.getElementById('nr-obs').value.trim();
+  var msg   = document.getElementById('nr-msg');
+  if (!cli || !area || !prazo) { msg.style.color='#bb274b'; msg.textContent='Preencha cliente, área e prazo.'; return; }
+  var data = getAdminData();
+  data.providencias.push({ Cat:'', Classificacao:'', Cliente:cli, TipoEnvio:tipo, Area:area, PrazoFatal:prazo, Obs:obs });
+  saveAdminData(data);
+  // Clear form
+  document.getElementById('nr-cliente').value = '';
+  document.getElementById('nr-area').value = '';
+  document.getElementById('nr-prazo').value = '';
+  document.getElementById('nr-obs').value = '';
+  msg.style.color='var(--green2)'; msg.textContent='✓ Adicionado!';
+  setTimeout(function(){ msg.textContent=''; }, 2500);
+  renderAdmin();
+}
+
+function deleteRelatorio(idx) {
+  if (!confirm('Remover este relatório?')) return;
+  var data = getAdminData();
+  data.providencias.splice(idx, 1);
+  saveAdminData(data);
+  renderAdminRelat();
+}
+
+function addCliente() {
+  var nome  = document.getElementById('nc-nome').value.trim();
+  var ka    = document.getElementById('nc-ka').value.trim();
+  var cls   = document.getElementById('nc-class').value;
+  var tipo  = document.getElementById('nc-tipo').value;
+  var areas = document.getElementById('nc-areas').value.trim();
+  var msg   = document.getElementById('nc-msg');
+  if (!nome) { msg.style.color='#bb274b'; msg.textContent='Preencha o nome do cliente.'; return; }
+  var data = getAdminData();
+  var nr = data.clientes.length + 1;
+  var cat = cls === 'CX' ? '★ 1' : cls === 'Trabalhista' ? '◆ 2' : cls.startsWith('Multi') ? '● 3' : '○ 5';
+  data.clientes.push({ Cat:cat, Classificacao:cls, Nr:nr, Cliente:nome, KeyAccount:ka, TipoEnvio:tipo, Areas_CJ:areas||'—', Areas_Trab:'—', NrAreas:areas ? areas.split('|').length : 0 });
+  saveAdminData(data);
+  document.getElementById('nc-nome').value = '';
+  document.getElementById('nc-ka').value = '';
+  document.getElementById('nc-areas').value = '';
+  msg.style.color='var(--green2)'; msg.textContent='✓ Adicionado!';
+  setTimeout(function(){ msg.textContent=''; }, 2500);
+  renderAdmin();
+}
+
+function deleteCliente(idx) {
+  if (!confirm('Remover este cliente?')) return;
+  var data = getAdminData();
+  data.clientes.splice(idx, 1);
+  saveAdminData(data);
+  renderAdminCli();
+}
+
+function exportAdminData() {
+  var data = getAdminData();
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'fius_dados_' + todayStr() + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function importAdminData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.clientes || !data.providencias) throw new Error('Formato inválido');
+      saveAdminData(data);
+      alert('✓ Dados importados! ' + data.providencias.length + ' relatórios e ' + data.clientes.length + ' clientes.');
+      renderAdmin();
+    } catch(err) {
+      alert('Erro ao importar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function resetAdminData() {
+  if (!confirm('Restaurar os dados originais da planilha? Todas as alterações locais serão perdidas.')) return;
+  localStorage.removeItem(ADMIN_KEY);
+  renderAdmin();
+}
 
 </script>
 </body>
