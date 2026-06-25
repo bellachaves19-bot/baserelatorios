@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
   --fius:#009edb; --navy:#111d30; --navy2:#152339; --navy3:#1a2b45;
@@ -579,19 +580,18 @@ tr.sent td:first-child { opacity:1; }
   <div class="page" id="page-admin">
     <div class="sec">Administração de Dados</div>
 
-    <!-- Sincronização GitHub -->
-    <div class="card" style="margin-bottom:14px;padding:16px 20px;border:1px solid rgba(0,158,219,.25);background:rgba(0,158,219,.04)">
-      <div style="font-size:11px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">☁ Sincronização entre dispositivos (GitHub)</div>
-      <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Cole um token GitHub com permissão <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px">contents:write</code> para salvar cumpridos na nuvem — acessível de qualquer navegador/dispositivo.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        <input id="gh-token-input" type="password" class="adm-inp" style="flex:1;min-width:260px" placeholder="ghp_xxxxxxxxxxxxxx (GitHub Personal Access Token)">
-        <button onclick="saveGhToken()" style="background:var(--fius);border:none;border-radius:8px;padding:8px 16px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Salvar token</button>
-        <button onclick="clearGhToken()" style="background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">Remover</button>
+    <!-- Sincronização Supabase -->
+    <div class="card" style="margin-bottom:14px;padding:16px 20px;border:1px solid rgba(63,207,142,.25);background:rgba(63,207,142,.04)">
+      <div style="font-size:11px;font-weight:700;color:#3fcf8e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">☁ Sincronização em tempo real (Supabase)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Configure uma vez e todos os dispositivos ficam sincronizados automaticamente em tempo real.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label class="adm-lbl">Project URL</label><input id="sb-url-input" class="adm-inp" placeholder="https://xxxx.supabase.co"></div>
+        <div><label class="adm-lbl">Anon Key</label><input id="sb-key-input" type="password" class="adm-inp" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span id="gh-sync-status" style="font-size:11px;color:var(--gray)">Token não configurado.</span>
-        <button onclick="ghPush(true)" id="gh-sync-btn" style="display:none;background:rgba(142,191,34,.15);border:1px solid rgba(142,191,34,.4);border-radius:8px;padding:6px 14px;color:var(--green2);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">↑ Enviar agora</button>
-        <button onclick="ghPull(true)" id="gh-pull-btn" style="display:none;background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.3);border-radius:8px;padding:6px 14px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">↓ Receber agora</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button onclick="saveSbConfig()" style="background:#3fcf8e;border:none;border-radius:8px;padding:8px 18px;color:#111;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Conectar</button>
+        <button onclick="clearSbConfig()" style="background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">Desconectar</button>
+        <span id="sb-sync-status" style="font-size:11px;color:var(--gray);margin-left:4px">Não configurado.</span>
       </div>
     </div>
 
@@ -1121,117 +1121,116 @@ function renderVD() {
 // ── COMPLETIONS STORE ────────────────────────────────────────────
 var COMP_KEY    = 'fius_completions';
 var VIRTUAL_KEY = 'fius_virtual';
-var GH_TOKEN_KEY = 'fius_gh_token';
-var GH_OWNER = 'bellachaves19-bot';
-var GH_REPO  = 'baserelatorios';
-var GH_FILE  = 'dados/completions.json';
-var GH_BRANCH = 'gh-pages';
-var _ghSyncTimer = null;
+var SB_URL_KEY  = 'fius_sb_url';
+var SB_KEY_KEY  = 'fius_sb_key';
+var SB_ROW_ID   = 'main';
+var _sbClient   = null;
+var _sbChannel  = null;
+var _sbSaveTimer = null;
 
-// ── BroadcastChannel: sync entre abas do mesmo navegador ─────────
-var _bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('fius_sync') : null;
-if (_bc) {
-  _bc.onmessage = function(e) {
-    if (e.data && e.data.type === 'update') {
-      if (e.data.completions) localStorage.setItem(COMP_KEY, JSON.stringify(e.data.completions));
-      if (e.data.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(e.data.virtuals));
+// ── Supabase: inicializar cliente ─────────────────────────────────
+function getSbConfig() {
+  return { url: localStorage.getItem(SB_URL_KEY)||'', key: localStorage.getItem(SB_KEY_KEY)||'' };
+}
+function initSupabase() {
+  var cfg = getSbConfig();
+  if (!cfg.url || !cfg.key) { _sbClient = null; return false; }
+  try {
+    _sbClient = supabase.createClient(cfg.url, cfg.key);
+    return true;
+  } catch(e) { _sbClient = null; return false; }
+}
+
+function saveSbConfig() {
+  var url = (document.getElementById('sb-url-input').value||'').trim().replace(/\/$/,'');
+  var key = (document.getElementById('sb-key-input').value||'').trim();
+  if (!url || !key) { alert('Preencha o Project URL e a Anon Key.'); return; }
+  localStorage.setItem(SB_URL_KEY, url);
+  localStorage.setItem(SB_KEY_KEY, key);
+  document.getElementById('sb-url-input').value = '';
+  document.getElementById('sb-key-input').value = '';
+  if (initSupabase()) {
+    setSbStatus('Conectando...', 'var(--yellow)');
+    sbLoad(true);
+    sbSubscribe();
+  }
+}
+function updateSbUI() {
+  var cfg = getSbConfig();
+  var connected = !!(cfg.url && cfg.key);
+  if (!connected) setSbStatus('Não configurado.', 'var(--gray)');
+}
+
+function clearSbConfig() {
+  if (!confirm('Desconectar do Supabase? Os dados locais são mantidos.')) return;
+  localStorage.removeItem(SB_URL_KEY);
+  localStorage.removeItem(SB_KEY_KEY);
+  if (_sbChannel && _sbClient) { _sbClient.removeChannel(_sbChannel); _sbChannel = null; }
+  _sbClient = null;
+  setSbStatus('Não configurado.', 'var(--gray)');
+}
+
+function setSbStatus(msg, color) {
+  var el = document.getElementById('sb-sync-status');
+  if (el) { el.textContent = msg; el.style.color = color||'var(--gray)'; }
+}
+
+// ── Supabase: carregar dados ──────────────────────────────────────
+function sbLoad(showMsg) {
+  if (!_sbClient) return;
+  _sbClient.from('fius_sync').select('completions,virtuals').eq('id', SB_ROW_ID).single()
+    .then(function(res) {
+      if (res.error) {
+        if (res.error.code === 'PGRST116') {
+          // Linha não existe ainda — criar
+          return _sbClient.from('fius_sync').insert({ id: SB_ROW_ID, completions: [], virtuals: [] });
+        }
+        setSbStatus('Erro: ' + res.error.message, 'var(--orange)'); return;
+      }
+      var d = res.data;
+      if (d.completions) localStorage.setItem(COMP_KEY, JSON.stringify(d.completions));
+      if (d.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(d.virtuals));
       renderVD(); renderPendentes(); renderCumpridos();
-    }
-  };
-}
-function bcBroadcast() {
-  if (_bc) _bc.postMessage({ type:'update', completions: getCompletions(), virtuals: getVirtuals() });
-}
-
-// ── GitHub token ─────────────────────────────────────────────────
-function getGhToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
-function saveGhToken() {
-  var t = (document.getElementById('gh-token-input').value || '').trim();
-  if (!t) { alert('Cole o token antes de salvar.'); return; }
-  localStorage.setItem(GH_TOKEN_KEY, t);
-  document.getElementById('gh-token-input').value = '';
-  updateGhUI();
-  ghPull(true);
-}
-function clearGhToken() {
-  if (!confirm('Remover token de sincronização? Os dados locais são mantidos.')) return;
-  localStorage.removeItem(GH_TOKEN_KEY);
-  updateGhUI();
-}
-function updateGhUI() {
-  var hasToken = !!getGhToken();
-  var st = document.getElementById('gh-sync-status');
-  var sb = document.getElementById('gh-sync-btn');
-  var pb = document.getElementById('gh-pull-btn');
-  if (st) st.textContent = hasToken ? '✓ Token configurado — sincronização ativa.' : 'Token não configurado.';
-  if (st) st.style.color = hasToken ? 'var(--green2)' : 'var(--gray)';
-  if (sb) sb.style.display = hasToken ? '' : 'none';
-  if (pb) pb.style.display = hasToken ? '' : 'none';
-}
-
-// ── GitHub API: ler dados ─────────────────────────────────────────
-function ghPull(showMsg) {
-  var token = getGhToken();
-  if (!token) return;
-  var url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH;
-  fetch(url, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } })
-    .then(function(r) {
-      if (r.status === 404) return null;
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(data) {
-      if (!data) { if (showMsg) setGhStatus('Nenhum dado na nuvem ainda — envie um backup primeiro.', 'var(--gray)'); return; }
-      var content = JSON.parse(atob(data.content.replace(/\n/g,'')));
-      if (content.completions) localStorage.setItem(COMP_KEY, JSON.stringify(content.completions));
-      if (content.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(content.virtuals));
-      bcBroadcast();
-      renderVD(); renderPendentes(); renderCumpridos();
-      if (showMsg) setGhStatus('✓ Dados recebidos da nuvem em ' + new Date().toLocaleTimeString('pt-BR'), 'var(--green2)');
       updateBackupStatus();
-    })
-    .catch(function(err) { if (showMsg) setGhStatus('Erro ao receber: ' + err.message, 'var(--orange)'); });
+      if (showMsg) setSbStatus('✓ Sincronizado em ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+      else setSbStatus('✓ Conectado e sincronizado.', '#3fcf8e');
+    });
 }
 
-// ── GitHub API: salvar dados ──────────────────────────────────────
-function ghPush(showMsg) {
-  var token = getGhToken();
-  if (!token) return;
-  var payload = { completions: getCompletions(), virtuals: getVirtuals(), updatedAt: new Date().toISOString() };
-  var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-  var url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE;
-
-  // Primeiro busca o SHA atual (necessário para atualizar)
-  fetch(url + '?ref=' + GH_BRANCH, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(existing) {
-      var body = { message: 'sync: update completions', content: encoded, branch: GH_BRANCH };
-      if (existing && existing.sha) body.sha = existing.sha;
-      return fetch(url, {
-        method: 'PUT',
-        headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-    })
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      bcBroadcast();
-      if (showMsg) setGhStatus('✓ Dados enviados para a nuvem em ' + new Date().toLocaleTimeString('pt-BR'), 'var(--green2)');
-      updateBackupStatus();
-    })
-    .catch(function(err) { if (showMsg) setGhStatus('Erro ao enviar: ' + err.message, 'var(--orange)'); });
+// ── Supabase: salvar dados ────────────────────────────────────────
+function sbSave() {
+  if (!_sbClient) return;
+  var payload = { completions: getCompletions(), virtuals: getVirtuals(), updated_at: new Date().toISOString() };
+  _sbClient.from('fius_sync').upsert(Object.assign({ id: SB_ROW_ID }, payload))
+    .then(function(res) {
+      if (res.error) setSbStatus('Erro ao salvar: ' + res.error.message, 'var(--orange)');
+      else setSbStatus('✓ Salvo em ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+    });
 }
 
-function setGhStatus(msg, color) {
-  var el = document.getElementById('gh-sync-status');
-  if (el) { el.textContent = msg; el.style.color = color || 'var(--gray)'; }
+// Debounce: salva 1s após última alteração
+function scheduleSbSave() {
+  if (!_sbClient) return;
+  clearTimeout(_sbSaveTimer);
+  _sbSaveTimer = setTimeout(sbSave, 1000);
 }
 
-// Auto-sync: empurra para GitHub 3s após cada save (debounce)
-function scheduleGhPush() {
-  if (!getGhToken()) return;
-  clearTimeout(_ghSyncTimer);
-  _ghSyncTimer = setTimeout(function() { ghPush(false); }, 3000);
+// ── Supabase: escutar mudanças em tempo real ──────────────────────
+function sbSubscribe() {
+  if (!_sbClient) return;
+  if (_sbChannel) _sbClient.removeChannel(_sbChannel);
+  _sbChannel = _sbClient
+    .channel('fius-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'fius_sync', filter: 'id=eq.' + SB_ROW_ID },
+      function(payload) {
+        var d = payload.new;
+        if (!d) return;
+        if (d.completions) localStorage.setItem(COMP_KEY, JSON.stringify(d.completions));
+        if (d.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(d.virtuals));
+        renderVD(); renderPendentes(); renderCumpridos();
+        setSbStatus('✓ Atualizado em tempo real — ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+      })
+    .subscribe();
 }
 
 function getCompletions() {
@@ -1239,16 +1238,14 @@ function getCompletions() {
 }
 function saveCompletions(arr) {
   localStorage.setItem(COMP_KEY, JSON.stringify(arr));
-  bcBroadcast();
-  scheduleGhPush();
+  scheduleSbSave();
 }
 function getVirtuals() {
   try { return JSON.parse(localStorage.getItem(VIRTUAL_KEY) || '[]'); } catch(e) { return []; }
 }
 function saveVirtuals(arr) {
   localStorage.setItem(VIRTUAL_KEY, JSON.stringify(arr));
-  bcBroadcast();
-  scheduleGhPush();
+  scheduleSbSave();
 }
 function compId(cliente, area, prazoFatal) {
   return cliente + '||' + area + '||' + prazoFatal;
@@ -1515,9 +1512,13 @@ document.addEventListener('DOMContentLoaded', function(){
   var inp = document.getElementById('vdDate');
   if(inp) inp.value = today;
   syncVirtualOccurrences();
-  updateGhUI();
-  // Carrega dados da nuvem se token configurado
-  ghPull(false);
+  // Inicializa Supabase se já configurado
+  if (initSupabase()) {
+    sbLoad(false);
+    sbSubscribe();
+    setSbStatus('Conectando...', 'var(--yellow)');
+  }
+  updateSbUI();
 });
 
 
@@ -1585,6 +1586,7 @@ function switchAdminTab(tab, el) {
 
 function renderAdmin() {
   updateBackupStatus();
+  updateSbUI();
   var data = getAdminData();
   var badge = document.getElementById('admin-source-badge');
   if (badge) badge.textContent = isUsingCustomData()
