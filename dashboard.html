@@ -335,6 +335,8 @@ tr.sent td:first-child { opacity:1; }
   <div class="tab" onclick="showPage('trabalhista', this)">Envio Trabalhista</div>
   <div class="tab" onclick="showPage('cx', this)">Clientes CX</div>
   <div class="tab" onclick="showPage('diaria', this)">Volumetria Diária</div>
+  <div class="tab" onclick="showPage('pendentes', this)">Pendentes</div>
+  <div class="tab" onclick="showPage('cumpridos', this)">Cumpridos</div>
 </div>
 
 <!-- PAGES -->
@@ -471,6 +473,38 @@ tr.sent td:first-child { opacity:1; }
     </div>
   </div>
 
+
+  <!-- ⑥ PENDENTES -->
+  <div class="page" id="page-pendentes">
+    <div class="sec">Relatórios Pendentes / Atrasados</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px" id="pend-kpis"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="card-hdr" style="margin-bottom:10px">
+          <div class="card-hdr-bar" style="background:var(--orange)"></div>
+          <h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px">Controladoria Jurídica (C.J.)</h3>
+          <span class="cnt" id="pend-cj-cnt"></span>
+        </div>
+        <div class="card" style="overflow-x:auto;padding:0" id="pend-cj-table"></div>
+      </div>
+      <div>
+        <div class="card-hdr" style="margin-bottom:10px">
+          <div class="card-hdr-bar" style="background:var(--yellow)"></div>
+          <h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px">Trabalhista</h3>
+          <span class="cnt" id="pend-trab-cnt"></span>
+        </div>
+        <div class="card" style="overflow-x:auto;padding:0" id="pend-trab-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ CUMPRIDOS -->
+  <div class="page" id="page-cumpridos">
+    <div class="sec">Relatórios Cumpridos</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px" id="cum-kpis"></div>
+    <div class="card" style="overflow-x:auto;padding:0" id="cum-table"></div>
+  </div>
+
 </div><!-- /container -->
 
 <!-- DRAWER -->
@@ -517,6 +551,8 @@ function showPage(id, el) {
   if (id === 'trabalhista') renderTrab();
   if (id === 'cx')          renderCX();
   if (id === 'diaria')      renderVD();
+  if (id === 'pendentes')   renderPendentes();
+  if (id === 'cumpridos')   renderCumpridos();
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────
@@ -832,22 +868,26 @@ function renderVD() {
   });
 
   // Table
-  var sentKey = 'fius_sent_' + val;
-  var sentSet = JSON.parse(localStorage.getItem(sentKey) || '[]');
+  var completions = getCompletions();
+  var completedIds = completions.map(function(c){ return c.id; });
 
-  var sentCount = sentSet.length;
+  // Filter out already-completed items for this date OR completed early
+  var pending = provs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  });
+  var doneToday = provs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) !== -1;
+  });
+
+  var sentCount = doneToday.length;
   var sentBadge = sentCount > 0
     ? '<span class="vd-sent-badge">✓ '+sentCount+' enviado'+(sentCount!==1?'s':'')+'</span>'
     : '';
 
-  var rows = provs.map(function(p, i) {
-    var key = i + '|' + p.Cliente + '|' + p.Area;
-    var isSent = sentSet.indexOf(key) !== -1;
-    var checkCls = isSent ? 'vd-check-btn checked' : 'vd-check-btn';
-    var rowCls = isSent ? 'sent' : '';
-    return '<tr class="'+rowCls+'" id="vd-row-'+i+'">'+
+  var rows = pending.map(function(p, i) {
+    return '<tr id="vd-row-'+i+'">'+
       '<td style="width:42px;padding:8px 6px">'+
-        '<button class="'+checkCls+'" onclick="toggleSent(event,\''+val+'\','+i+',\''+p.Cliente.replace(/'/g,'\x27')+'\',\''+p.Area.replace(/'/g,'\x27')+'\')">'+
+        '<button class="vd-check-btn" onclick="toggleCompletion(event,\''+p.Cliente.replace(/'/g,'\x27')+'\',\''+p.Area.replace(/'/g,'\x27')+'\',\''+p.PrazoFatal+'\',\''+p.TipoEnvio+'\',\''+encodeURIComponent(p.Obs||'')+'\')">'+
           '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
         '</button>'+
       '</td>'+
@@ -861,58 +901,226 @@ function renderVD() {
   }).join('');
 
   document.getElementById('vdTableWrap').innerHTML =
-    '<div style="display:flex;align-items:center;margin-bottom:14px">'+
+    '<div style="display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">'+
       '<h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px;margin:0">Providências do Dia</h3>'+
       sentBadge+
-      '<button onclick="clearSent(\'' + val + '\')" style="margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Limpar checks</button>'+
     '</div>'+
+    (pending.length === 0 ? '<div style="padding:20px;color:var(--green2);font-size:13px;text-align:center;font-weight:700">✓ Todas as providências desta data foram cumpridas!</div>' :
     '<div style="overflow-x:auto"><table><thead><tr>'+
-    '<th style="width:42px">Enviado</th><th style="width:34px">#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>'+
-    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<th style="width:42px">Cumprido</th><th style="width:34px">#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>');
 }
 
-function toggleSent(e, dateVal, idx, cliente, area) {
+
+// ── COMPLETIONS STORE ────────────────────────────────────────────
+var COMP_KEY = 'fius_completions';
+
+function getCompletions() {
+  return JSON.parse(localStorage.getItem(COMP_KEY) || '[]');
+}
+function saveCompletions(arr) {
+  localStorage.setItem(COMP_KEY, JSON.stringify(arr));
+}
+function compId(cliente, area, prazoFatal) {
+  return cliente + '||' + area + '||' + prazoFatal;
+}
+function isCompleted(cliente, area, prazoFatal) {
+  var id = compId(cliente, area, prazoFatal);
+  return getCompletions().some(function(c){ return c.id === id; });
+}
+
+// ── DATE UTILS ───────────────────────────────────────────────────
+function toDateStr(d) {
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function prevBusinessDay(d) {
+  var r = new Date(d);
+  var wd = r.getDay(); // 0=Sun,6=Sat
+  if (wd === 6) r.setDate(r.getDate()-1);
+  else if (wd === 0) r.setDate(r.getDate()-2);
+  return r;
+}
+function nextMonthOccurrence(dateStr) {
+  var parts = dateStr.split('-');
+  var y=parseInt(parts[0]), mo=parseInt(parts[1]), d=parseInt(parts[2]);
+  var nm = mo+1, ny = y;
+  if (nm > 12) { nm=1; ny++; }
+  // clamp to last day of month
+  var candidate = new Date(ny, nm-1, d);
+  if (candidate.getMonth() !== nm-1) candidate = new Date(ny, nm, 0);
+  return toDateStr(prevBusinessDay(candidate));
+}
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+// ── TOGGLE COMPLETION ────────────────────────────────────────────
+function toggleCompletion(e, cliente, area, prazoFatal, tipoEnvio, obs) {
   e.stopPropagation();
-  var key = idx + '|' + cliente + '|' + area;
-  var storKey = 'fius_sent_' + dateVal;
-  var sentSet = JSON.parse(localStorage.getItem(storKey) || '[]');
-  var pos = sentSet.indexOf(key);
-  if (pos === -1) sentSet.push(key);
-  else sentSet.splice(pos, 1);
-  localStorage.setItem(storKey, JSON.stringify(sentSet));
+  var id = compId(cliente, area, prazoFatal);
+  var arr = getCompletions();
+  var pos = arr.findIndex(function(c){ return c.id === id; });
 
-  var btn = e.currentTarget;
-  var row = document.getElementById('vd-row-' + idx);
   if (pos === -1) {
-    btn.classList.add('checked');
-    if (row) row.classList.add('sent');
+    // Mark as done → compute next occurrence
+    var done = todayStr();
+    var next = nextMonthOccurrence(prazoFatal);
+    arr.push({ id:id, cliente:cliente, area:area, prazoFatal:prazoFatal,
+               tipoEnvio:tipoEnvio, obs:obs, completedDate:done, nextDate:next });
+    saveCompletions(arr);
   } else {
-    btn.classList.remove('checked');
-    if (row) row.classList.remove('sent');
+    arr.splice(pos, 1);
+    saveCompletions(arr);
   }
-
-  // Update badge
-  var badge = document.querySelector('.vd-sent-badge');
-  var total = sentSet.length;
-  if (total > 0) {
-    var txt = '✓ '+total+' enviado'+(total!==1?'s':'');
-    if (badge) badge.textContent = txt;
-    else {
-      var h3 = document.querySelector('#vdTableWrap h3');
-      if (h3) {
-        var sp = document.createElement('span');
-        sp.className = 'vd-sent-badge';
-        sp.textContent = txt;
-        h3.insertAdjacentElement('afterend', sp);
-      }
-    }
-  } else if (badge) badge.remove();
-}
-
-function clearSent(dateVal) {
-  localStorage.removeItem('fius_sent_' + dateVal);
+  // Re-render current page
   renderVD();
 }
+
+// ── UNDO from cumpridos ──────────────────────────────────────────
+function undoCompletion(id) {
+  var arr = getCompletions().filter(function(c){ return c.id !== id; });
+  saveCompletions(arr);
+  renderCumpridos();
+}
+
+document.addEventListener('click', function(e) {
+  var ub = e.target.closest ? e.target.closest('.undo-comp-btn') : null;
+  if (!ub) return;
+  undoCompletion(decodeURIComponent(ub.getAttribute('data-id') || ''));
+});
+
+// ── RENDER: VOLUMETRIA DIÁRIA (updated) ──────────────────────────
+// (uses existing renderVD but we patch the sent check logic)
+var _origRenderVD = renderVD;
+
+// ── PENDENTES ────────────────────────────────────────────────────
+function renderPendentes() {
+  var today = todayStr();
+  var completions = getCompletions();
+  var completedIds = completions.map(function(c){ return c.id; });
+
+  var overdue = PROVIDENCIAS.filter(function(p){
+    if (!p.PrazoFatal || p.PrazoFatal >= today) return false;
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  });
+
+  var cj   = overdue.filter(function(p){ return p.TipoEnvio === 'C.J.'; });
+  var trab = overdue.filter(function(p){ return p.TipoEnvio === 'Trabalhista'; });
+
+  // KPIs
+  document.getElementById('pend-kpis').innerHTML =
+    kpiMini('Total Atrasados', overdue.length, 'var(--orange)') +
+    kpiMini('C.J.', cj.length, 'var(--fius)') +
+    kpiMini('Trabalhista', trab.length, 'var(--yellow)') +
+    kpiMini('Clientes afetados', new Set(overdue.map(function(p){return p.Cliente;})).size, 'var(--red)');
+
+  document.getElementById('pend-cj-cnt').textContent   = cj.length + ' atrasados';
+  document.getElementById('pend-trab-cnt').textContent = trab.length + ' atrasados';
+
+  document.getElementById('pend-cj-table').innerHTML   = pendTable(cj, today);
+  document.getElementById('pend-trab-table').innerHTML = pendTable(trab, today);
+}
+
+function kpiMini(label, val, color) {
+  return '<div class="kpi" style="--c:'+color+'"><div class="kpi-bar"></div>'+
+    '<div class="kpi-label">'+label+'</div>'+
+    '<div class="kpi-value" style="font-size:28px">'+val+'</div></div>';
+}
+
+function pendTable(list, today) {
+  if (!list.length) return '<div style="padding:20px;color:var(--gray);font-size:12px;text-align:center">Nenhum atraso ✓</div>';
+  var sorted = list.slice().sort(function(a,b){ return a.PrazoFatal < b.PrazoFatal ? -1 : 1; });
+  var rows = sorted.map(function(p){
+    var dias = daysBetween(p.PrazoFatal, today);
+    var cor = dias > 30 ? 'var(--red)' : dias > 7 ? 'var(--orange)' : 'var(--yellow)';
+    return '<tr>'+
+      '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+p.PrazoFatal.split('-').reverse().join('/')+'</td>'+
+      '<td><span style="color:'+cor+';font-weight:700;font-size:11px">+'+dias+' dia'+(dias!==1?'s':'')+'</span></td>'+
+      '<td><button class="pend-done-btn"'+
+        ' data-c="'+p.Cliente.replace(/"/g,'&quot;')+'"'+
+        ' data-a="'+p.Area.replace(/"/g,'&quot;')+'"'+
+        ' data-pf="'+p.PrazoFatal+'"'+
+        ' data-te="'+p.TipoEnvio+'"'+
+        ' data-ob="'+encodeURIComponent(p.Obs||'')+'"'+
+        ' style="background:rgba(88,176,49,.15);border:1px solid rgba(88,176,49,.4);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">'+
+        '✓ Marcar cumprido</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+  return '<table><thead><tr><th>Cliente</th><th>Área</th><th>Prazo</th><th>Atraso</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest ? e.target.closest('.pend-done-btn') : null;
+  if (!btn) return;
+  var cliente = btn.getAttribute('data-c');
+  var area    = btn.getAttribute('data-a');
+  var pf      = btn.getAttribute('data-pf');
+  var te      = btn.getAttribute('data-te');
+  var obs     = decodeURIComponent(btn.getAttribute('data-ob') || '');
+  var id = compId(cliente, area, pf);
+  var arr = getCompletions();
+  if (arr.findIndex(function(c){ return c.id === id; }) === -1) {
+    arr.push({id:id, cliente:cliente, area:area, prazoFatal:pf,
+              tipoEnvio:te, obs:obs, completedDate:todayStr(), nextDate:nextMonthOccurrence(pf)});
+    saveCompletions(arr);
+  }
+  renderPendentes();
+});
+
+// ── CUMPRIDOS ────────────────────────────────────────────────────
+function renderCumpridos() {
+  var arr = getCompletions();
+  arr = arr.slice().sort(function(a,b){ return b.completedDate < a.completedDate ? -1 : 1; });
+
+  var today = todayStr();
+  var thisMonth = today.slice(0,7);
+  var thisMonthCount = arr.filter(function(c){ return c.completedDate.startsWith(thisMonth); }).length;
+  var antecipados = arr.filter(function(c){ return c.completedDate < c.prazoFatal; }).length;
+
+  document.getElementById('cum-kpis').innerHTML =
+    kpiMini('Total Cumpridos', arr.length, 'var(--green2)') +
+    kpiMini('Este mês', thisMonthCount, 'var(--fius)') +
+    kpiMini('Antecipados', antecipados, 'var(--teal)');
+
+  if (!arr.length) {
+    document.getElementById('cum-table').innerHTML =
+      '<div style="padding:24px;color:var(--gray);font-size:12px;text-align:center">Nenhum relatório cumprido ainda.</div>';
+    return;
+  }
+
+  var rows = arr.map(function(c){
+    var antec = c.completedDate < c.prazoFatal;
+    var badge = antec
+      ? '<span style="background:rgba(104,196,212,.15);color:var(--teal);border:1px solid rgba(104,196,212,.3);border-radius:10px;padding:2px 7px;font-size:10px;font-weight:700">Antecipado</span>'
+      : '';
+    return '<tr>'+
+      '<td style="font-weight:700;font-size:12px">'+c.cliente+'</td>'+
+      '<td>'+c.area+'</td>'+
+      '<td>'+envTag(c.tipoEnvio)+'</td>'+
+      '<td>'+c.prazoFatal.split('-').reverse().join('/')+'</td>'+
+      '<td style="color:var(--green2);font-weight:700">'+c.completedDate.split('-').reverse().join('/')+'</td>'+
+      '<td>'+badge+'</td>'+
+      '<td style="color:var(--gray);font-size:10px">'+c.nextDate.split('-').reverse().join('/')+'</td>'+
+      '<td><button class="undo-comp-btn" data-id="'+encodeURIComponent(c.id)+'" '+
+        'style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Desfazer</button></td>'+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('cum-table').innerHTML =
+    '<table><thead><tr>'+
+    '<th>Cliente</th><th>Área</th><th>Tipo</th><th>Prazo Fatal</th><th>Cumprido em</th><th>Status</th><th>Próx. Ocorrência</th><th></th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
 
 // Inicializa com hoje
 document.addEventListener('DOMContentLoaded', function(){
