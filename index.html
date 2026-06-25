@@ -792,8 +792,8 @@ function renderVD() {
     _DIAS[dt.getDay()] + ', ' + day + ' de ' + _MESES[m-1] + ' de ' + y;
 
   var provs = PROVIDENCIAS.filter(function(p){ return p.PrazoFatal === val; });
-  var total=provs.length, mensal=0, trim=0, ppt=0;
-  provs.forEach(function(p){
+  var total=pending.length, mensal=0, trim=0, ppt=0;
+  pending.forEach(function(p){
     var t=vdTipo(p.Obs);
     if(t==='Mensal') mensal++;
     else if(t==='Trimestral') trim++;
@@ -806,7 +806,7 @@ function renderVD() {
 
   // By client
   var byC={};
-  provs.forEach(function(p){ byC[p.Cliente]=(byC[p.Cliente]||0)+1; });
+  pending.forEach(function(p){ byC[p.Cliente]=(byC[p.Cliente]||0)+1; });
   var cSorted=Object.entries(byC).sort(function(a,b){return b[1]-a[1];});
   var cLabels=cSorted.map(function(e){ return e[0].length>20?e[0].slice(0,19)+'…':e[0]; });
   var cVals=cSorted.map(function(e){ return e[1]; });
@@ -814,7 +814,7 @@ function renderVD() {
 
   // By area
   var byA={};
-  provs.forEach(function(p){ byA[p.Area]=(byA[p.Area]||0)+1; });
+  pending.forEach(function(p){ byA[p.Area]=(byA[p.Area]||0)+1; });
   var aSorted=Object.entries(byA).sort(function(a,b){return b[1]-a[1];});
   var aLabels=aSorted.map(function(e){return e[0];});
   var aVals=aSorted.map(function(e){return e[1];});
@@ -1013,9 +1013,12 @@ function addVirtualOccurrence(cliente, area, nextDate, tipoEnvio, obs, originDat
   var virtuals = getVirtuals();
   var vid = compId(cliente, area, nextDate);
   if (!virtuals.some(function(v){ return v.id === vid; })) {
+    // Decode obs in case it was stored URL-encoded
+    var decodedObs = obs;
+    try { decodedObs = decodeURIComponent(obs); } catch(e) {}
     virtuals.push({
       id: vid, cliente: cliente, area: area, PrazoFatal: nextDate,
-      TipoEnvio: tipoEnvio, Obs: obs, Cat: '', Classificacao: '',
+      TipoEnvio: tipoEnvio, Obs: decodedObs, Cat: '', Classificacao: '',
       originDate: originDate, isVirtual: true
     });
     saveVirtuals(virtuals);
