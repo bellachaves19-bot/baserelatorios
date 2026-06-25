@@ -174,11 +174,153 @@ tbody td{padding:10px 13px;vertical-align:middle}
 footer{background:var(--navy2);border-top:1px solid rgba(0,158,219,.12);padding:16px 36px;display:flex;align-items:center;gap:14px}
 footer svg{width:26px;height:26px;opacity:.4;flex-shrink:0}
 footer p{font-size:10px;color:var(--gray);line-height:1.6}
+
+/* ── VOLUMETRIA DIÁRIA ── */
+.vd-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.vd-date-input{background:var(--navy3);border:1px solid rgba(0,158,219,.35);color:var(--white);padding:9px 14px;border-radius:8px;font-size:13px;font-family:Verdana,sans-serif;outline:none;cursor:pointer}
+.vd-date-input:focus{border-color:var(--fius)}
+.vd-nav-btn{background:var(--navy3);border:1px solid rgba(255,255,255,.1);color:var(--white);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:Verdana,sans-serif;font-weight:700;transition:all .15s}
+.vd-nav-btn:hover{background:var(--fius);border-color:var(--fius)}
+.vd-today{background:rgba(0,158,219,.15);border-color:rgba(0,158,219,.4);color:var(--fius)}
+.vd-top{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;flex-wrap:wrap}
+.vd-kpis{display:flex;flex-direction:column;gap:10px;min-width:155px}
+.vd-kpi{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 18px;text-align:center;position:relative;overflow:hidden}
+.vd-kpi-bar{position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--fius))}
+.vd-kpi-label{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px}
+.vd-kpi-value{font-size:32px;font-weight:700;color:var(--c,var(--fius));line-height:1;margin-top:6px}
+.vd-charts{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+.vd-chart-card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px 20px}
+.vd-chart-wrap{position:relative;height:200px}
+.vd-empty{text-align:center;padding:40px 0;color:var(--gray);font-size:13px}
+.vd-table-card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px 20px;margin-top:14px}
+
+
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed;inset:0;z-index:9999;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+}
+#login-screen.hidden { display:none; }
+.login-box {
+  background:var(--navy2);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:48px 44px;
+  width:100%;max-width:380px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.login-logo { margin-bottom:28px; }
+.login-title {
+  font-size:15px;font-weight:700;color:var(--white);
+  letter-spacing:.5px;margin-bottom:4px;text-align:center;
+}
+.login-sub {
+  font-size:11px;color:var(--gray);margin-bottom:32px;text-align:center;letter-spacing:.4px;
+}
+.login-field {
+  width:100%;margin-bottom:12px;position:relative;
+}
+.login-field input {
+  width:100%;box-sizing:border-box;
+  background:var(--navy3);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  padding:13px 16px;
+  color:var(--white);
+  font-family:Verdana,Geneva,sans-serif;
+  font-size:13px;
+  outline:none;
+  transition:border .2s;
+}
+.login-field input:focus { border-color:var(--fius); }
+.login-field input::placeholder { color:rgba(109,110,113,.7); }
+.login-btn {
+  width:100%;margin-top:8px;
+  background:var(--fius);
+  border:none;border-radius:10px;
+  padding:13px;
+  color:#fff;font-family:Verdana,Geneva,sans-serif;
+  font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.5px;
+  transition:opacity .2s;
+}
+.login-btn:hover { opacity:.88; }
+.login-err {
+  color:#bb274b;font-size:11px;margin-top:10px;
+  min-height:16px;text-align:center;letter-spacing:.3px;
+}
+.login-footer {
+  margin-top:36px;font-size:10px;color:rgba(109,110,113,.6);text-align:center;
+}
+
+/* ── VD CHECK ── */
+.vd-check-btn {
+  width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+  background:transparent;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .18s;flex-shrink:0;
+}
+.vd-check-btn:hover { border-color:var(--green2); }
+.vd-check-btn.checked { background:var(--green2);border-color:var(--green2); }
+.vd-check-btn svg { display:none; }
+.vd-check-btn.checked svg { display:block; }
+tr.sent td { opacity:.45; }
+tr.sent td:first-child { opacity:1; }
+.vd-sent-badge {
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;color:var(--green2);
+  background:rgba(88,176,49,.12);border:1px solid rgba(88,176,49,.3);
+  border-radius:20px;padding:3px 8px;margin-left:10px;
+}
+
+/* ── ADMIN ── */
+.admin-tab {
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  padding:10px 18px;color:var(--gray);font-family:Verdana,sans-serif;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  cursor:pointer;transition:all .2s;
+}
+.admin-tab.active,.admin-tab:hover { color:var(--fius);border-bottom-color:var(--fius); }
+.adm-lbl { display:block;font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px; }
+.adm-inp {
+  width:100%;box-sizing:border-box;background:var(--navy3);
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  padding:9px 12px;color:var(--white);font-family:Verdana,sans-serif;font-size:12px;outline:none;
+  transition:border .2s;
+}
+.adm-inp:focus { border-color:var(--fius); }
+.adm-del { background:transparent;border:1px solid rgba(187,39,75,.35);border-radius:6px;padding:3px 8px;color:#bb274b;font-size:10px;cursor:pointer;font-family:Verdana,sans-serif; }
+.adm-del:hover { background:rgba(187,39,75,.12); }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 88 110" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0"  y="0"   width="13" height="110" fill="#009edb"/>
+        <rect x="0"  y="0"   width="60" height="13"  fill="#009edb"/>
+        <rect x="75" y="0"   width="13" height="26"  fill="#009edb"/>
+        <rect x="75" y="55"  width="13" height="55"  fill="#009edb"/>
+        <rect x="28" y="97"  width="60" height="13"  fill="#009edb"/>
+      </svg>
+    </div>
+    <div class="login-title">FINOCCHIO & USTRA ADVOGADOS</div>
+    <div class="login-sub">SMART REPORT — ACESSO RESTRITO</div>
+    <div class="login-field">
+      <input type="password" id="login-pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">ENTRAR</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-footer">Uso exclusivo interno · Finocchio & Ustra Advogados</div>
+  </div>
+</div>
+
 <header>
   <div class="logo-wrap">
     <svg class="logo-svg" viewBox="0 0 88 110" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -207,10 +349,14 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="showPage('dashboard')">Dashboard</div>
-  <div class="tab" onclick="showPage('clientes')">Todos os Clientes</div>
-  <div class="tab" onclick="showPage('trabalhista')">Envio Trabalhista</div>
-  <div class="tab" onclick="showPage('cx')">Clientes CX</div>
+  <div class="tab active" onclick="showPage('dashboard', this)">Dashboard</div>
+  <div class="tab" onclick="showPage('clientes', this)">Todos os Clientes</div>
+  <div class="tab" onclick="showPage('trabalhista', this)">Envio Trabalhista</div>
+  <div class="tab" onclick="showPage('cx', this)">Clientes CX</div>
+  <div class="tab" onclick="showPage('diaria', this)">Volumetria Diária</div>
+  <div class="tab" onclick="showPage('pendentes', this)">Pendentes</div>
+  <div class="tab" onclick="showPage('cumpridos', this)">Cumpridos</div>
+  <div class="tab" onclick="showPage('admin', this)">⚙ Administração</div>
 </div>
 
 <!-- PAGES -->
@@ -307,6 +453,164 @@ footer p{font-size:10px;color:var(--gray);line-height:1.6}
     <div class="cx-grid" id="cxGrid"></div>
   </div>
 
+
+  <!-- ⑤ VOLUMETRIA DIÁRIA -->
+  <div class="page" id="page-diaria">
+    <div class="sec">Volumetria Diária</div>
+
+    <!-- Date selector + day label -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+      <label style="font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Data</label>
+      <input type="date" id="vdDate" onchange="renderVD()"
+        style="background:var(--navy3);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 12px;color:var(--white);font-family:Verdana,sans-serif;font-size:12px;outline:none;cursor:pointer">
+      <span id="vdDayName" style="font-size:13px;color:var(--teal);font-weight:700"></span>
+      <span id="vdMonthName" style="font-size:12px;color:var(--gray)"></span>
+    </div>
+
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">
+      <div class="kpi" style="--c:var(--fius)"><div class="kpi-bar"></div><div class="kpi-label">Total</div><div class="kpi-value" id="vd-total">—</div></div>
+      <div class="kpi" style="--c:var(--green)"><div class="kpi-bar"></div><div class="kpi-label">Mensal</div><div class="kpi-value" id="vd-mensal">—</div></div>
+      <div class="kpi" style="--c:var(--teal)"><div class="kpi-bar"></div><div class="kpi-label">Trimestral</div><div class="kpi-value" id="vd-trimestral">—</div></div>
+      <div class="kpi" style="--c:var(--purple)"><div class="kpi-bar"></div><div class="kpi-label">PPT / Outros</div><div class="kpi-value" id="vd-ppt">—</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+      <div class="card">
+        <div class="card-hdr"><div class="card-hdr-bar"></div><h3>Por Cliente</h3><span class="cnt" id="vd-cli-cnt"></span></div>
+        <div id="vdCliWrap" style="position:relative;height:200px"><canvas id="vdClientChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-hdr-bar" style="background:var(--teal)"></div><h3>Por Área</h3><span class="cnt" id="vd-area-cnt"></span></div>
+        <div id="vdAreaWrap" style="position:relative;height:200px"><canvas id="vdAreaChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card" style="overflow-x:auto" id="vdTableWrap">
+      <div style="color:var(--gray);font-size:12px;padding:20px 0;text-align:center">Selecione uma data para ver as providências.</div>
+    </div>
+  </div>
+
+
+  <!-- ⑥ PENDENTES -->
+  <div class="page" id="page-pendentes">
+    <div class="sec">Relatórios Pendentes / Atrasados</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px" id="pend-kpis"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="card-hdr" style="margin-bottom:10px">
+          <div class="card-hdr-bar" style="background:var(--orange)"></div>
+          <h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px">Controladoria Jurídica (C.J.)</h3>
+          <span class="cnt" id="pend-cj-cnt"></span>
+        </div>
+        <div class="card" style="overflow-x:auto;padding:0" id="pend-cj-table"></div>
+      </div>
+      <div>
+        <div class="card-hdr" style="margin-bottom:10px">
+          <div class="card-hdr-bar" style="background:var(--yellow)"></div>
+          <h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px">Trabalhista</h3>
+          <span class="cnt" id="pend-trab-cnt"></span>
+        </div>
+        <div class="card" style="overflow-x:auto;padding:0" id="pend-trab-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ CUMPRIDOS -->
+  <div class="page" id="page-cumpridos">
+    <div class="sec">Relatórios Cumpridos</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px" id="cum-kpis"></div>
+    <div class="card" style="overflow-x:auto;padding:0" id="cum-table"></div>
+  </div>
+
+
+  <!-- ⑧ ADMINISTRAÇÃO -->
+  <div class="page" id="page-admin">
+    <div class="sec">Administração de Dados</div>
+
+    <!-- Import/Export bar -->
+    <div class="card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:16px 20px">
+      <span style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.6px">Base de dados:</span>
+      <span id="admin-source-badge" style="font-size:11px;color:var(--gray)">carregando...</span>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+        <label style="background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.3);border-radius:8px;padding:7px 14px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+          ↑ Importar JSON <input type="file" accept=".json" id="admin-import-file" style="display:none" onchange="importAdminData(this)">
+        </label>
+        <button onclick="exportAdminData()" style="background:rgba(88,176,49,.12);border:1px solid rgba(88,176,49,.3);border-radius:8px;padding:7px 14px;color:var(--green2);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">↓ Exportar JSON</button>
+        <button onclick="resetAdminData()" style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 14px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">↺ Restaurar original</button>
+      </div>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <button class="admin-tab active" onclick="switchAdminTab('relatorios',this)">Relatórios</button>
+      <button class="admin-tab" onclick="switchAdminTab('clientes',this)">Clientes</button>
+    </div>
+
+    <!-- Relatórios panel -->
+    <div id="admin-panel-relatorios">
+      <div class="card" style="margin-bottom:14px;padding:20px">
+        <h3 style="font-size:11px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:.7px;margin:0 0 16px">Adicionar Relatório</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="adm-lbl">Cliente</label><input class="adm-inp" id="nr-cliente" list="nr-clientes-list" placeholder="Nome do cliente"></div>
+          <div><label class="adm-lbl">Área</label><input class="adm-inp" id="nr-area" list="nr-areas-list" placeholder="Ex: Tributário Judicial"></div>
+          <div><label class="adm-lbl">Tipo de Envio</label>
+            <select class="adm-inp" id="nr-tipo">
+              <option value="C.J.">C.J.</option>
+              <option value="Trabalhista">Trabalhista</option>
+              <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+          <div><label class="adm-lbl">Prazo Fatal</label><input class="adm-inp" id="nr-prazo" type="date"></div>
+          <div style="grid-column:span 2"><label class="adm-lbl">Observações</label><input class="adm-inp" id="nr-obs" placeholder="Ex: Relatório Mensal - Cliente X - Envio todo dia 10"></div>
+        </div>
+        <button onclick="addRelatorio()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <span id="nr-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
+      </div>
+      <div class="card" style="overflow-x:auto;padding:0" id="admin-relat-table"></div>
+    </div>
+
+    <!-- Clientes panel -->
+    <div id="admin-panel-clientes" style="display:none">
+      <div class="card" style="margin-bottom:14px;padding:20px">
+        <h3 style="font-size:11px;font-weight:700;color:var(--fius);text-transform:uppercase;letter-spacing:.7px;margin:0 0 16px">Adicionar Cliente</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="adm-lbl">Nome do Cliente</label><input class="adm-inp" id="nc-nome" placeholder="Razão social ou apelido"></div>
+          <div><label class="adm-lbl">Key Account</label><input class="adm-inp" id="nc-ka" placeholder="Nome do responsável"></div>
+          <div><label class="adm-lbl">Classificação</label>
+            <select class="adm-inp" id="nc-class">
+              <option value="CX">CX (Cat. 1)</option>
+              <option value="Trabalhista">Trabalhista (Cat. 2)</option>
+              <option value="Multi-área · Trabalhista">Multi-área · Trabalhista (Cat. 3)</option>
+              <option value="Multi-área · C.J.">Multi-área · C.J. (Cat. 4)</option>
+              <option value="Área única">Área única (Cat. 5)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div><label class="adm-lbl">Tipo de Envio</label>
+            <select class="adm-inp" id="nc-tipo">
+              <option value="C.J.">C.J.</option>
+              <option value="Trabalhista">Trabalhista</option>
+              <option value="C.J. + Trabalhista">C.J. + Trabalhista</option>
+            </select>
+          </div>
+          <div><label class="adm-lbl">Áreas CJ (separadas por |)</label><input class="adm-inp" id="nc-areas" placeholder="Ex: Cível | Tributário Judicial"></div>
+        </div>
+        <button onclick="addCliente()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <span id="nc-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
+      </div>
+      <div class="card" style="overflow-x:auto;padding:0" id="admin-cli-table"></div>
+    </div>
+
+    <datalist id="nr-clientes-list"></datalist>
+    <datalist id="nr-areas-list"></datalist>
+  </div>
+
 </div><!-- /container -->
 
 <!-- DRAWER -->
@@ -345,13 +649,17 @@ const PROVIDENCIAS = {{PROVIDENCIAS_JSON}};
 const CX_MAP = {{CX_MAP_JSON}};
 
 // ── TABS ───────────────────────────────────────────────────────────
-function showPage(id) {
+function showPage(id, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   if (id === 'trabalhista') renderTrab();
   if (id === 'cx')          renderCX();
+  if (id === 'diaria')      renderVD();
+  if (id === 'pendentes')   renderPendentes();
+  if (id === 'cumpridos')   renderCumpridos();
+  if (id === 'admin')       renderAdmin();
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────
@@ -556,6 +864,674 @@ function renderCX() {
       </div>`;
   });
 }
+
+// ── VOLUMETRIA DIÁRIA ────────────────────────────────────────────
+var _vdCli = null, _vdArea = null;
+const _DIAS  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const _MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function vdTipo(obs) {
+  var o = (obs||'').toLowerCase();
+  if (o.indexOf('trimestral')>=0) return 'Trimestral';
+  if (o.indexOf('ppt')>=0 || o.indexOf('/bi')>=0) return 'PPT/BI';
+  return 'Mensal';
+}
+function vdGoToday() {
+  var t = new Date().toISOString().split('T')[0];
+  document.getElementById('vdDate').value = t;
+  renderVD();
+}
+function vdShiftDay(delta) {
+  var inp = document.getElementById('vdDate');
+  var dt = inp.value ? new Date(inp.value+'T12:00:00') : new Date();
+  dt.setDate(dt.getDate()+delta);
+  inp.value = dt.toISOString().split('T')[0];
+  renderVD();
+}
+
+function renderVD() {
+  var val = document.getElementById('vdDate').value;
+  if (!val) return;
+  var parts = val.split('-');
+  var y=parseInt(parts[0]), m=parseInt(parts[1]), day=parseInt(parts[2]);
+  var dt = new Date(y, m-1, day);
+  document.getElementById('vdDayName').textContent =
+    _DIAS[dt.getDay()] + ', ' + day + ' de ' + _MESES[m-1] + ' de ' + y;
+
+  var provs = PROVIDENCIAS.filter(function(p){ return p.PrazoFatal === val; });
+
+  // Merge real + virtual providências for this date
+  var virtuals = getVirtuals().filter(function(v){ return v.PrazoFatal === val; });
+  var allProvs = provs.concat(virtuals.map(function(v){
+    return {Cliente:v.cliente,Area:v.area,PrazoFatal:v.PrazoFatal,
+            TipoEnvio:v.TipoEnvio,Obs:v.Obs,Cat:v.Cat||'',Classificacao:v.Classificacao||''};
+  }));
+
+  // Filter out already-completed items
+  var completions = getCompletions();
+  var completedIds = completions.map(function(c){ return c.id; });
+  var pending = allProvs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  });
+  var doneToday = allProvs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) !== -1;
+  });
+
+  var total=pending.length, mensal=0, trim=0, ppt=0;
+  pending.forEach(function(p){
+    var t=vdTipo(p.Obs);
+    if(t==='Mensal') mensal++;
+    else if(t==='Trimestral') trim++;
+    else ppt++;
+  });
+  document.getElementById('vd-total').textContent      = total;
+  document.getElementById('vd-mensal').textContent     = mensal;
+  document.getElementById('vd-trimestral').textContent = trim;
+  document.getElementById('vd-ppt').textContent        = ppt;
+
+  // By client
+  var byC={};
+  pending.forEach(function(p){ byC[p.Cliente]=(byC[p.Cliente]||0)+1; });
+  var cSorted=Object.entries(byC).sort(function(a,b){return b[1]-a[1];});
+  var cLabels=cSorted.map(function(e){ return e[0].length>20?e[0].slice(0,19)+'…':e[0]; });
+  var cVals=cSorted.map(function(e){ return e[1]; });
+  document.getElementById('vd-cli-cnt').textContent = cSorted.length+' cliente'+(cSorted.length!==1?'s':'');
+
+  // By area
+  var byA={};
+  pending.forEach(function(p){ byA[p.Area]=(byA[p.Area]||0)+1; });
+  var aSorted=Object.entries(byA).sort(function(a,b){return b[1]-a[1];});
+  var aLabels=aSorted.map(function(e){return e[0];});
+  var aVals=aSorted.map(function(e){return e[1];});
+  document.getElementById('vd-area-cnt').textContent = aSorted.length+' área'+(aSorted.length!==1?'s':'');
+
+  var aColors=['#009edb','#494092','#304f9d','#68c4d4','#8ebf22','#58b031','#efc517','#ea5627','#bb274b','#6d6e71'];
+
+  // Resize chart wrappers
+  var cH=Math.max(200, cSorted.length*30);
+  var aH=Math.max(200, aSorted.length*34);
+  document.getElementById('vdCliWrap').style.height  = cH+'px';
+  document.getElementById('vdAreaWrap').style.height = aH+'px';
+
+  if(_vdCli)  { _vdCli.destroy();  _vdCli=null;  }
+  if(_vdArea) { _vdArea.destroy(); _vdArea=null; }
+
+  if(total===0){
+    document.getElementById('vd-cli-cnt').textContent='';
+    document.getElementById('vd-area-cnt').textContent='';
+    document.getElementById('vdTableWrap').innerHTML='<div class="vd-empty">Nenhuma providência para esta data.</div>';
+    return;
+  }
+
+  _vdCli = new Chart(document.getElementById('vdClientChart'),{
+    type:'bar',
+    data:{labels:cLabels,datasets:[{data:cVals,backgroundColor:'#009edb',borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:function(items){return cSorted[items[0].dataIndex][0];},
+        label:function(item){return '  '+item.parsed.x+' providência'+(item.parsed.x!==1?'s':'');}
+      }}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#6d6e71',stepSize:1},border:{color:'transparent'}},
+        y:{grid:{display:false},ticks:{color:'#f3f3f3',font:{size:11}},border:{color:'transparent'}}
+      }
+    }
+  });
+
+  _vdArea = new Chart(document.getElementById('vdAreaChart'),{
+    type:'bar',
+    data:{labels:aLabels,datasets:[{data:aVals,backgroundColor:aColors.slice(0,aLabels.length),borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:function(item){return '  '+item.parsed.x+' providência'+(item.parsed.x!==1?'s':'');}
+      }}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#6d6e71',stepSize:1},border:{color:'transparent'}},
+        y:{grid:{display:false},ticks:{color:'#f3f3f3',font:{size:11}},border:{color:'transparent'}}
+      }
+    }
+  });
+
+  // Table
+
+  var sentCount = doneToday.length;
+  var sentBadge = sentCount > 0
+    ? '<span class="vd-sent-badge">✓ '+sentCount+' enviado'+(sentCount!==1?'s':'')+'</span>'
+    : '';
+
+  var rows = pending.map(function(p, i) {
+    return '<tr id="vd-row-'+i+'">'+
+      '<td style="width:42px;padding:8px 6px">'+
+        '<button class="vd-check-btn" onclick="toggleCompletion(event,\''+p.Cliente.replace(/'/g,'\x27')+'\',\''+p.Area.replace(/'/g,'\x27')+'\',\''+p.PrazoFatal+'\',\''+p.TipoEnvio+'\',\''+encodeURIComponent(p.Obs||'')+'\')">'+
+          '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+        '</button>'+
+      '</td>'+
+      '<td style="color:#6d6e71;font-size:11px">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;font-size:12px;cursor:pointer" onclick="openDrawer(\x27'+p.Cliente.replace(/'/g,'\x27')+'\x27)">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+envTag(p.TipoEnvio)+'</td>'+
+      '<td><span class="etag" style="background:rgba(0,158,219,.1);color:#009edb;border:1px solid rgba(0,158,219,.25);font-size:10px">'+vdTipo(p.Obs)+'</span></td>'+
+      '<td style="color:#6d6e71;font-size:11px;max-width:260px">'+(p.Obs||'—')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('vdTableWrap').innerHTML =
+    '<div style="display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">'+
+      '<h3 style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.7px;margin:0">Providências do Dia</h3>'+
+      sentBadge+
+    '</div>'+
+    (pending.length === 0 ? '<div style="padding:20px;color:var(--green2);font-size:13px;text-align:center;font-weight:700">✓ Todas as providências desta data foram cumpridas!</div>' :
+    '<div style="overflow-x:auto"><table><thead><tr>'+
+    '<th style="width:42px">Cumprido</th><th style="width:34px">#</th><th>Cliente</th><th>Área</th><th>Tipo de Envio</th><th>Periodicidade</th><th>Observações</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>');
+}
+
+
+// ── COMPLETIONS STORE ────────────────────────────────────────────
+var COMP_KEY    = 'fius_completions';
+var VIRTUAL_KEY = 'fius_virtual';
+
+function getCompletions() {
+  return JSON.parse(localStorage.getItem(COMP_KEY) || '[]');
+}
+function saveCompletions(arr) {
+  localStorage.setItem(COMP_KEY, JSON.stringify(arr));
+}
+function getVirtuals() {
+  return JSON.parse(localStorage.getItem(VIRTUAL_KEY) || '[]');
+}
+function saveVirtuals(arr) {
+  localStorage.setItem(VIRTUAL_KEY, JSON.stringify(arr));
+}
+function compId(cliente, area, prazoFatal) {
+  return cliente + '||' + area + '||' + prazoFatal;
+}
+function isCompleted(cliente, area, prazoFatal) {
+  var id = compId(cliente, area, prazoFatal);
+  return getCompletions().some(function(c){ return c.id === id; });
+}
+
+// ── DATE UTILS ───────────────────────────────────────────────────
+// Feriados nacionais BR 2026-2027 (fixos + móveis calculados)
+var FERIADOS = {
+  '2026-01-01':1,'2026-02-16':1,'2026-02-17':1,'2026-04-03':1,'2026-04-21':1,
+  '2026-05-01':1,'2026-06-04':1,'2026-09-07':1,'2026-10-12':1,'2026-11-02':1,
+  '2026-11-15':1,'2026-11-20':1,'2026-12-25':1,
+  '2027-01-01':1,'2027-03-01':1,'2027-03-02':1,'2027-03-26':1,'2027-04-21':1,
+  '2027-05-01':1,'2027-05-27':1,'2027-09-07':1,'2027-10-12':1,'2027-11-02':1,
+  '2027-11-15':1,'2027-11-20':1,'2027-12-25':1
+};
+function toDateStr(d) {
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function isNonWorkingDay(d) {
+  var wd = d.getDay();
+  return wd === 0 || wd === 6 || FERIADOS[toDateStr(d)];
+}
+function prevBusinessDay(d) {
+  var r = new Date(d.getTime());
+  while (isNonWorkingDay(r)) r.setDate(r.getDate()-1);
+  return r;
+}
+function nextMonthOccurrence(dateStr) {
+  var parts = dateStr.split('-');
+  var y=parseInt(parts[0]), mo=parseInt(parts[1]), d=parseInt(parts[2]);
+  var nm = mo+1, ny = y;
+  if (nm > 12) { nm=1; ny++; }
+  var candidate = new Date(ny, nm-1, d);
+  if (candidate.getMonth() !== nm-1) candidate = new Date(ny, nm, 0);
+  return toDateStr(prevBusinessDay(candidate));
+}
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+// ── TOGGLE COMPLETION ────────────────────────────────────────────
+function toggleCompletion(e, cliente, area, prazoFatal, tipoEnvio, obs) {
+  e.stopPropagation();
+  var id = compId(cliente, area, prazoFatal);
+  var arr = getCompletions();
+  var pos = arr.findIndex(function(c){ return c.id === id; });
+
+  if (pos === -1) {
+    var done = todayStr();
+    var next = nextMonthOccurrence(prazoFatal);
+    arr.push({ id:id, cliente:cliente, area:area, prazoFatal:prazoFatal,
+               tipoEnvio:tipoEnvio, obs:obs, completedDate:done, nextDate:next });
+    saveCompletions(arr);
+    // Create virtual occurrence for next month
+    addVirtualOccurrence(cliente, area, next, tipoEnvio, obs, prazoFatal);
+  } else {
+    var removed = arr[pos];
+    arr.splice(pos, 1);
+    saveCompletions(arr);
+    // Remove virtual occurrence that was created from this completion
+    removeVirtualOccurrence(cliente, area, removed.nextDate, prazoFatal);
+  }
+  renderVD();
+}
+
+function addVirtualOccurrence(cliente, area, nextDate, tipoEnvio, obs, originDate) {
+  var virtuals = getVirtuals();
+  var vid = compId(cliente, area, nextDate);
+  if (!virtuals.some(function(v){ return v.id === vid; })) {
+    // Decode obs in case it was stored URL-encoded
+    var decodedObs = obs;
+    try { decodedObs = decodeURIComponent(obs); } catch(e) {}
+    virtuals.push({
+      id: vid, cliente: cliente, area: area, PrazoFatal: nextDate,
+      TipoEnvio: tipoEnvio, Obs: decodedObs, Cat: '', Classificacao: '',
+      originDate: originDate, isVirtual: true
+    });
+    saveVirtuals(virtuals);
+  }
+}
+
+function removeVirtualOccurrence(cliente, area, nextDate, originDate) {
+  var virtuals = getVirtuals().filter(function(v){
+    return !(v.cliente === cliente && v.area === area && v.PrazoFatal === nextDate && v.originDate === originDate);
+  });
+  saveVirtuals(virtuals);
+}
+
+// ── UNDO from cumpridos ──────────────────────────────────────────
+function undoCompletion(id) {
+  var all = getCompletions();
+  var removed = all.find(function(c){ return c.id === id; });
+  var arr = all.filter(function(c){ return c.id !== id; });
+  saveCompletions(arr);
+  if (removed) removeVirtualOccurrence(removed.cliente, removed.area, removed.nextDate, removed.prazoFatal);
+  renderCumpridos();
+}
+
+document.addEventListener('click', function(e) {
+  var ub = e.target.closest ? e.target.closest('.undo-comp-btn') : null;
+  if (!ub) return;
+  undoCompletion(decodeURIComponent(ub.getAttribute('data-id') || ''));
+});
+
+// ── RENDER: VOLUMETRIA DIÁRIA (updated) ──────────────────────────
+// (uses existing renderVD but we patch the sent check logic)
+var _origRenderVD = renderVD;
+
+// ── PENDENTES ────────────────────────────────────────────────────
+function renderPendentes() {
+  var today = todayStr();
+  var completions = getCompletions();
+  var completedIds = completions.map(function(c){ return c.id; });
+
+  var virtuals = getVirtuals();
+  var allProv = PROVIDENCIAS.concat(virtuals.map(function(v){
+    return {Cliente:v.cliente,Area:v.area,PrazoFatal:v.PrazoFatal,
+            TipoEnvio:v.TipoEnvio,Obs:v.Obs};
+  }));
+  var overdue = allProv.filter(function(p){
+    if (!p.PrazoFatal || p.PrazoFatal >= today) return false;
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  });
+
+  var cj   = overdue.filter(function(p){ return p.TipoEnvio === 'C.J.'; });
+  var trab = overdue.filter(function(p){ return p.TipoEnvio === 'Trabalhista'; });
+
+  // KPIs
+  document.getElementById('pend-kpis').innerHTML =
+    kpiMini('Total Atrasados', overdue.length, 'var(--orange)') +
+    kpiMini('C.J.', cj.length, 'var(--fius)') +
+    kpiMini('Trabalhista', trab.length, 'var(--yellow)') +
+    kpiMini('Clientes afetados', new Set(overdue.map(function(p){return p.Cliente;})).size, 'var(--red)');
+
+  document.getElementById('pend-cj-cnt').textContent   = cj.length + ' atrasados';
+  document.getElementById('pend-trab-cnt').textContent = trab.length + ' atrasados';
+
+  document.getElementById('pend-cj-table').innerHTML   = pendTable(cj, today);
+  document.getElementById('pend-trab-table').innerHTML = pendTable(trab, today);
+}
+
+function kpiMini(label, val, color) {
+  return '<div class="kpi" style="--c:'+color+'"><div class="kpi-bar"></div>'+
+    '<div class="kpi-label">'+label+'</div>'+
+    '<div class="kpi-value" style="font-size:28px">'+val+'</div></div>';
+}
+
+function pendTable(list, today) {
+  if (!list.length) return '<div style="padding:20px;color:var(--gray);font-size:12px;text-align:center">Nenhum atraso ✓</div>';
+  var sorted = list.slice().sort(function(a,b){ return a.PrazoFatal < b.PrazoFatal ? -1 : 1; });
+  var rows = sorted.map(function(p){
+    var dias = daysBetween(p.PrazoFatal, today);
+    var cor = dias > 30 ? 'var(--red)' : dias > 7 ? 'var(--orange)' : 'var(--yellow)';
+    return '<tr>'+
+      '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+p.PrazoFatal.split('-').reverse().join('/')+'</td>'+
+      '<td><span style="color:'+cor+';font-weight:700;font-size:11px">+'+dias+' dia'+(dias!==1?'s':'')+'</span></td>'+
+      '<td><button class="pend-done-btn"'+
+        ' data-c="'+p.Cliente.replace(/"/g,'&quot;')+'"'+
+        ' data-a="'+p.Area.replace(/"/g,'&quot;')+'"'+
+        ' data-pf="'+p.PrazoFatal+'"'+
+        ' data-te="'+p.TipoEnvio+'"'+
+        ' data-ob="'+encodeURIComponent(p.Obs||'')+'"'+
+        ' style="background:rgba(88,176,49,.15);border:1px solid rgba(88,176,49,.4);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">'+
+        '✓ Marcar cumprido</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+  return '<table><thead><tr><th>Cliente</th><th>Área</th><th>Prazo</th><th>Atraso</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest ? e.target.closest('.pend-done-btn') : null;
+  if (!btn) return;
+  var cliente = btn.getAttribute('data-c');
+  var area    = btn.getAttribute('data-a');
+  var pf      = btn.getAttribute('data-pf');
+  var te      = btn.getAttribute('data-te');
+  var obs     = decodeURIComponent(btn.getAttribute('data-ob') || '');
+  var id = compId(cliente, area, pf);
+  var arr = getCompletions();
+  if (arr.findIndex(function(c){ return c.id === id; }) === -1) {
+    var next = nextMonthOccurrence(pf);
+    arr.push({id:id, cliente:cliente, area:area, prazoFatal:pf,
+              tipoEnvio:te, obs:obs, completedDate:todayStr(), nextDate:next});
+    saveCompletions(arr);
+    addVirtualOccurrence(cliente, area, next, te, obs, pf);
+  }
+  renderPendentes();
+});
+
+// ── CUMPRIDOS ────────────────────────────────────────────────────
+function renderCumpridos() {
+  var arr = getCompletions();
+  arr = arr.slice().sort(function(a,b){ return b.completedDate < a.completedDate ? -1 : 1; });
+
+  var today = todayStr();
+  var thisMonth = today.slice(0,7);
+  var thisMonthCount = arr.filter(function(c){ return c.completedDate.startsWith(thisMonth); }).length;
+  var antecipados = arr.filter(function(c){ return c.completedDate < c.prazoFatal; }).length;
+
+  document.getElementById('cum-kpis').innerHTML =
+    kpiMini('Total Cumpridos', arr.length, 'var(--green2)') +
+    kpiMini('Este mês', thisMonthCount, 'var(--fius)') +
+    kpiMini('Antecipados', antecipados, 'var(--teal)');
+
+  if (!arr.length) {
+    document.getElementById('cum-table').innerHTML =
+      '<div style="padding:24px;color:var(--gray);font-size:12px;text-align:center">Nenhum relatório cumprido ainda.</div>';
+    return;
+  }
+
+  var rows = arr.map(function(c){
+    var antec = c.completedDate < c.prazoFatal;
+    var badge = antec
+      ? '<span style="background:rgba(104,196,212,.15);color:var(--teal);border:1px solid rgba(104,196,212,.3);border-radius:10px;padding:2px 7px;font-size:10px;font-weight:700">Antecipado</span>'
+      : '';
+    return '<tr>'+
+      '<td style="font-weight:700;font-size:12px">'+c.cliente+'</td>'+
+      '<td>'+c.area+'</td>'+
+      '<td>'+envTag(c.tipoEnvio)+'</td>'+
+      '<td>'+c.prazoFatal.split('-').reverse().join('/')+'</td>'+
+      '<td style="color:var(--green2);font-weight:700">'+c.completedDate.split('-').reverse().join('/')+'</td>'+
+      '<td>'+badge+'</td>'+
+      '<td style="color:var(--gray);font-size:10px">'+c.nextDate.split('-').reverse().join('/')+'</td>'+
+      '<td><button class="undo-comp-btn" data-id="'+encodeURIComponent(c.id)+'" '+
+        'style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Desfazer</button></td>'+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('cum-table').innerHTML =
+    '<table><thead><tr>'+
+    '<th>Cliente</th><th>Área</th><th>Tipo</th><th>Prazo Fatal</th><th>Cumprido em</th><th>Status</th><th>Próx. Ocorrência</th><th></th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+
+// Inicializa com hoje
+// ── SYNC: garante que toda completion tem sua ocorrência virtual ──
+function syncVirtualOccurrences() {
+  var completions = getCompletions();
+  completions.forEach(function(c) {
+    if (c.nextDate) {
+      addVirtualOccurrence(c.cliente, c.area, c.nextDate, c.tipoEnvio, c.obs || '', c.prazoFatal);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var today = new Date().toISOString().split('T')[0];
+  var inp = document.getElementById('vdDate');
+  if(inp) inp.value = today;
+  // Sync virtual occurrences for all existing completions
+  syncVirtualOccurrences();
+});
+
+
+
+// ── AUTH ────────────────────────────────────────────────────────────
+const _PWD_HASH = 'a956b0bb1fc158c12a6b1e3e4a9a6f0030b82f3a74daa77d086f646b3f9c657f';
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  var pwd = document.getElementById('login-pwd').value;
+  var h = await sha256(pwd);
+  if (h === _PWD_HASH) {
+    sessionStorage.setItem('fius_auth','1');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('login-err').textContent = '';
+  } else {
+    var err = document.getElementById('login-err');
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+// Check session on load
+(function(){
+  if(sessionStorage.getItem('fius_auth') === '1') {
+    document.getElementById('login-screen').classList.add('hidden');
+  } else {
+    setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+  }
+})();
+
+
+// ── ADMINISTRAÇÃO ────────────────────────────────────────────────
+var ADMIN_KEY = 'fius_admin_data';
+
+function getAdminData() {
+  var stored = localStorage.getItem(ADMIN_KEY);
+  if (stored) return JSON.parse(stored);
+  // Return copy of original embedded data
+  return {
+    clientes: JSON.parse(JSON.stringify(CLIENTES)),
+    providencias: JSON.parse(JSON.stringify(PROVIDENCIAS))
+  };
+}
+function saveAdminData(data) {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(data));
+}
+function isUsingCustomData() {
+  return !!localStorage.getItem(ADMIN_KEY);
+}
+
+function switchAdminTab(tab, el) {
+  document.querySelectorAll('.admin-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('admin-panel-relatorios').style.display = tab === 'relatorios' ? '' : 'none';
+  document.getElementById('admin-panel-clientes').style.display   = tab === 'clientes'   ? '' : 'none';
+  if (tab === 'relatorios') renderAdminRelat();
+  else renderAdminCli();
+}
+
+function renderAdmin() {
+  var data = getAdminData();
+  var badge = document.getElementById('admin-source-badge');
+  if (badge) badge.textContent = isUsingCustomData()
+    ? '✎ Dados personalizados (' + data.providencias.length + ' relatórios, ' + data.clientes.length + ' clientes)'
+    : '● Dados originais da planilha (' + data.providencias.length + ' relatórios, ' + data.clientes.length + ' clientes)';
+
+  // Populate datalists
+  var cliList = document.getElementById('nr-clientes-list');
+  var areaList = document.getElementById('nr-areas-list');
+  if (cliList) {
+    var cliNames = [...new Set(data.clientes.map(function(c){ return c.Cliente; }))].sort();
+    cliList.innerHTML = cliNames.map(function(n){ return '<option value="'+n.replace(/"/g,'&quot;')+'">'; }).join('');
+  }
+  if (areaList) {
+    var areas = [...new Set(data.providencias.map(function(p){ return p.Area; }))].sort();
+    areaList.innerHTML = areas.map(function(a){ return '<option value="'+a.replace(/"/g,'&quot;')+'">'; }).join('');
+  }
+  renderAdminRelat();
+}
+
+function renderAdminRelat() {
+  var data = getAdminData();
+  var provs = data.providencias;
+  if (!provs.length) {
+    document.getElementById('admin-relat-table').innerHTML = '<div style="padding:20px;color:var(--gray);text-align:center;font-size:12px">Nenhum relatório cadastrado.</div>';
+    return;
+  }
+  var rows = provs.map(function(p, i) {
+    var prazoFmt = p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—';
+    return '<tr>'+
+      '<td style="color:#6d6e71;font-size:11px;width:32px">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+envTag(p.TipoEnvio)+'</td>'+
+      '<td style="color:var(--gray);font-size:11px">'+prazoFmt+'</td>'+
+      '<td style="color:var(--gray);font-size:10px;max-width:220px">'+( p.Obs||'—' )+'</td>'+
+      '<td><button class="adm-del" onclick="deleteRelatorio('+i+')">✕ Remover</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('admin-relat-table').innerHTML =
+    '<table><thead><tr><th>#</th><th>Cliente</th><th>Área</th><th>Tipo</th><th>Prazo</th><th>Observações</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderAdminCli() {
+  var data = getAdminData();
+  var clis = data.clientes;
+  if (!clis.length) {
+    document.getElementById('admin-cli-table').innerHTML = '<div style="padding:20px;color:var(--gray);text-align:center;font-size:12px">Nenhum cliente cadastrado.</div>';
+    return;
+  }
+  var rows = clis.map(function(c, i) {
+    return '<tr>'+
+      '<td style="color:#6d6e71;font-size:11px;width:32px">'+(i+1)+'</td>'+
+      '<td style="font-weight:700;font-size:12px">'+c.Cliente+'</td>'+
+      '<td style="color:var(--gray);font-size:11px">'+( c.KeyAccount||'—' )+'</td>'+
+      '<td>'+envTag(c.TipoEnvio)+'</td>'+
+      '<td style="font-size:11px;color:var(--gray)">'+( c.Classificacao||'—' )+'</td>'+
+      '<td style="font-size:10px;color:var(--gray);max-width:200px">'+( c.Areas_CJ||'—' )+'</td>'+
+      '<td><button class="adm-del" onclick="deleteCliente('+i+')">✕ Remover</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('admin-cli-table').innerHTML =
+    '<table><thead><tr><th>#</th><th>Cliente</th><th>Key Account</th><th>Tipo</th><th>Classificação</th><th>Áreas CJ</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function addRelatorio() {
+  var cli   = document.getElementById('nr-cliente').value.trim();
+  var area  = document.getElementById('nr-area').value.trim();
+  var tipo  = document.getElementById('nr-tipo').value;
+  var prazo = document.getElementById('nr-prazo').value;
+  var obs   = document.getElementById('nr-obs').value.trim();
+  var msg   = document.getElementById('nr-msg');
+  if (!cli || !area || !prazo) { msg.style.color='#bb274b'; msg.textContent='Preencha cliente, área e prazo.'; return; }
+  var data = getAdminData();
+  data.providencias.push({ Cat:'', Classificacao:'', Cliente:cli, TipoEnvio:tipo, Area:area, PrazoFatal:prazo, Obs:obs });
+  saveAdminData(data);
+  // Clear form
+  document.getElementById('nr-cliente').value = '';
+  document.getElementById('nr-area').value = '';
+  document.getElementById('nr-prazo').value = '';
+  document.getElementById('nr-obs').value = '';
+  msg.style.color='var(--green2)'; msg.textContent='✓ Adicionado!';
+  setTimeout(function(){ msg.textContent=''; }, 2500);
+  renderAdmin();
+}
+
+function deleteRelatorio(idx) {
+  if (!confirm('Remover este relatório?')) return;
+  var data = getAdminData();
+  data.providencias.splice(idx, 1);
+  saveAdminData(data);
+  renderAdminRelat();
+}
+
+function addCliente() {
+  var nome  = document.getElementById('nc-nome').value.trim();
+  var ka    = document.getElementById('nc-ka').value.trim();
+  var cls   = document.getElementById('nc-class').value;
+  var tipo  = document.getElementById('nc-tipo').value;
+  var areas = document.getElementById('nc-areas').value.trim();
+  var msg   = document.getElementById('nc-msg');
+  if (!nome) { msg.style.color='#bb274b'; msg.textContent='Preencha o nome do cliente.'; return; }
+  var data = getAdminData();
+  var nr = data.clientes.length + 1;
+  var cat = cls === 'CX' ? '★ 1' : cls === 'Trabalhista' ? '◆ 2' : cls.startsWith('Multi') ? '● 3' : '○ 5';
+  data.clientes.push({ Cat:cat, Classificacao:cls, Nr:nr, Cliente:nome, KeyAccount:ka, TipoEnvio:tipo, Areas_CJ:areas||'—', Areas_Trab:'—', NrAreas:areas ? areas.split('|').length : 0 });
+  saveAdminData(data);
+  document.getElementById('nc-nome').value = '';
+  document.getElementById('nc-ka').value = '';
+  document.getElementById('nc-areas').value = '';
+  msg.style.color='var(--green2)'; msg.textContent='✓ Adicionado!';
+  setTimeout(function(){ msg.textContent=''; }, 2500);
+  renderAdmin();
+}
+
+function deleteCliente(idx) {
+  if (!confirm('Remover este cliente?')) return;
+  var data = getAdminData();
+  data.clientes.splice(idx, 1);
+  saveAdminData(data);
+  renderAdminCli();
+}
+
+function exportAdminData() {
+  var data = getAdminData();
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'fius_dados_' + todayStr() + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function importAdminData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.clientes || !data.providencias) throw new Error('Formato inválido');
+      saveAdminData(data);
+      alert('✓ Dados importados! ' + data.providencias.length + ' relatórios e ' + data.clientes.length + ' clientes.');
+      renderAdmin();
+    } catch(err) {
+      alert('Erro ao importar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function resetAdminData() {
+  if (!confirm('Restaurar os dados originais da planilha? Todas as alterações locais serão perdidas.')) return;
+  localStorage.removeItem(ADMIN_KEY);
+  renderAdmin();
+}
+
 </script>
 </body>
 </html>
