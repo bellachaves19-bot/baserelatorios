@@ -1121,16 +1121,21 @@ function renderVD() {
 // ── COMPLETIONS STORE ────────────────────────────────────────────
 var COMP_KEY    = 'fius_completions';
 var VIRTUAL_KEY = 'fius_virtual';
-var SB_URL_KEY  = 'fius_sb_url';
-var SB_KEY_KEY  = 'fius_sb_key';
-var SB_ROW_ID   = 'main';
-var _sbClient   = null;
-var _sbChannel  = null;
+var SB_URL_KEY   = 'fius_sb_url';
+var SB_KEY_KEY   = 'fius_sb_key';
+var SB_DEFAULT_URL = 'https://skiszfsnhftyvqxuloof.supabase.co';
+var SB_DEFAULT_KEY = 'sb_publishable_nSPq3f6dLJhzTt8rOIBlmQ_O_B7fXwE';
+var SB_ROW_ID    = 'main';
+var _sbClient    = null;
+var _sbChannel   = null;
 var _sbSaveTimer = null;
 
 // ── Supabase: inicializar cliente ─────────────────────────────────
 function getSbConfig() {
-  return { url: localStorage.getItem(SB_URL_KEY)||'', key: localStorage.getItem(SB_KEY_KEY)||'' };
+  return {
+    url: localStorage.getItem(SB_URL_KEY) || SB_DEFAULT_URL,
+    key: localStorage.getItem(SB_KEY_KEY) || SB_DEFAULT_KEY
+  };
 }
 function initSupabase() {
   var cfg = getSbConfig();
@@ -1157,8 +1162,11 @@ function saveSbConfig() {
 }
 function updateSbUI() {
   var cfg = getSbConfig();
-  var connected = !!(cfg.url && cfg.key);
-  if (!connected) setSbStatus('Não configurado.', 'var(--gray)');
+  if (cfg.url && cfg.key) {
+    setSbStatus(_sbClient ? '✓ Conectado.' : 'Conectando...', _sbClient ? '#3fcf8e' : 'var(--yellow)');
+  } else {
+    setSbStatus('Não configurado.', 'var(--gray)');
+  }
 }
 
 function clearSbConfig() {
