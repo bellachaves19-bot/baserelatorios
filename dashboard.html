@@ -579,7 +579,23 @@ tr.sent td:first-child { opacity:1; }
   <div class="page" id="page-admin">
     <div class="sec">Administração de Dados</div>
 
-    <!-- Import/Export bar -->
+    <!-- Backup de cumpridos -->
+    <div class="card" style="margin-bottom:14px;padding:16px 20px;border:1px solid rgba(239,197,23,.2);background:rgba(239,197,23,.04)">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">💾 Backup de Cumpridos &amp; Agendamentos</div>
+          <div style="font-size:11px;color:var(--gray)" id="backup-status">Clique em "Baixar Backup" para salvar seus dados.</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="downloadBackup()" style="background:rgba(239,197,23,.18);border:1px solid rgba(239,197,23,.45);border-radius:8px;padding:7px 16px;color:var(--yellow);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar Backup</button>
+          <label style="background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.3);border-radius:8px;padding:7px 16px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+            ↑ Restaurar Backup <input type="file" accept=".json" id="backup-import-file" style="display:none" onchange="restoreBackup(this)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import/Export base de dados -->
     <div class="card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:16px 20px">
       <span style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.6px">Base de dados:</span>
       <span id="admin-source-badge" style="font-size:11px;color:var(--gray)">carregando...</span>
@@ -661,6 +677,16 @@ tr.sent td:first-child { opacity:1; }
   </div>
 
 </div><!-- /container -->
+
+<!-- BACKUP REMINDER TOAST -->
+<div id="backup-toast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:#1a2b45;border:1px solid rgba(239,197,23,.5);border-radius:12px;padding:14px 18px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:320px;font-family:Verdana,sans-serif">
+  <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">💾 Lembrete de Backup</div>
+  <div style="font-size:11px;color:#ccc;margin-bottom:12px">Você marcou um novo cumprido! Faça o backup para não perder seus dados.</div>
+  <div style="display:flex;gap:8px">
+    <button onclick="downloadBackup();document.getElementById('backup-toast').style.display='none'" style="flex:1;background:rgba(239,197,23,.2);border:1px solid rgba(239,197,23,.4);border-radius:7px;padding:6px 10px;color:var(--yellow);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar agora</button>
+    <button onclick="document.getElementById('backup-toast').style.display='none'" style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:6px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Depois</button>
+  </div>
+</div>
 
 <!-- DRAWER -->
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
@@ -1156,6 +1182,7 @@ function toggleCompletion(e, cliente, area, prazoFatal, tipoEnvio, obs) {
     saveCompletions(arr);
     // Create virtual occurrence for next month
     addVirtualOccurrence(cliente, area, next, tipoEnvio, obs, prazoFatal);
+    showBackupReminder();
   } else {
     var removed = arr[pos];
     arr.splice(pos, 1);
@@ -1289,6 +1316,7 @@ document.addEventListener('click', function(e) {
               tipoEnvio:te, obs:obs, completedDate:todayStr(), nextDate:next});
     saveCompletions(arr);
     addVirtualOccurrence(cliente, area, next, te, obs, pf);
+    showBackupReminder();
   }
   renderPendentes();
 });
@@ -1422,6 +1450,7 @@ function switchAdminTab(tab, el) {
 }
 
 function renderAdmin() {
+  updateBackupStatus();
   var data = getAdminData();
   var badge = document.getElementById('admin-source-badge');
   if (badge) badge.textContent = isUsingCustomData()
@@ -1543,6 +1572,73 @@ function deleteCliente(idx) {
   data.clientes.splice(idx, 1);
   saveAdminData(data);
   renderAdminCli();
+}
+
+// ── BACKUP DE CUMPRIDOS / AGENDAMENTOS ───────────────────────────
+var BACKUP_KEY = 'fius_last_backup';
+
+function getBackupData() {
+  return {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    completions: getCompletions(),
+    virtuals: getVirtuals()
+  };
+}
+
+function downloadBackup() {
+  var data = getBackupData();
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fius_backup_cumpridos_' + todayStr() + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  localStorage.setItem(BACKUP_KEY, todayStr());
+  updateBackupStatus();
+}
+
+function restoreBackup(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      var comps = data.completions || data.fius_completions || [];
+      var virts = data.virtuals   || data.fius_virtual     || [];
+      if (!Array.isArray(comps)) throw new Error('Formato inválido');
+      saveCompletions(comps);
+      localStorage.setItem(VIRTUAL_KEY, JSON.stringify(virts));
+      alert('✓ Backup restaurado! ' + comps.length + ' cumpridos e ' + virts.length + ' agendamentos futuros recuperados.');
+      updateBackupStatus();
+      renderCumpridos();
+      renderPendentes();
+    } catch(err) {
+      alert('Erro ao restaurar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function showBackupReminder() {
+  var toast = document.getElementById('backup-toast');
+  if (toast) { toast.style.display = 'block'; }
+}
+
+function updateBackupStatus() {
+  var el = document.getElementById('backup-status');
+  if (!el) return;
+  var last = localStorage.getItem(BACKUP_KEY);
+  var comps = getCompletions().length;
+  var virts = getVirtuals().length;
+  if (last) {
+    el.innerHTML = comps + ' cumprido(s) · ' + virts + ' agendamento(s) futuro(s) · <span style="color:var(--green2)">Último backup: ' + last.split('-').reverse().join('/') + '</span>';
+  } else {
+    el.innerHTML = comps + ' cumprido(s) · ' + virts + ' agendamento(s) futuro(s) · <span style="color:var(--orange)">Nenhum backup realizado ainda — faça um agora!</span>';
+  }
 }
 
 function exportAdminData() {
