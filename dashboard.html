@@ -792,6 +792,24 @@ function renderVD() {
     _DIAS[dt.getDay()] + ', ' + day + ' de ' + _MESES[m-1] + ' de ' + y;
 
   var provs = PROVIDENCIAS.filter(function(p){ return p.PrazoFatal === val; });
+
+  // Merge real + virtual providências for this date
+  var virtuals = getVirtuals().filter(function(v){ return v.PrazoFatal === val; });
+  var allProvs = provs.concat(virtuals.map(function(v){
+    return {Cliente:v.cliente,Area:v.area,PrazoFatal:v.PrazoFatal,
+            TipoEnvio:v.TipoEnvio,Obs:v.Obs,Cat:v.Cat||'',Classificacao:v.Classificacao||''};
+  }));
+
+  // Filter out already-completed items
+  var completions = getCompletions();
+  var completedIds = completions.map(function(c){ return c.id; });
+  var pending = allProvs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  });
+  var doneToday = allProvs.filter(function(p){
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) !== -1;
+  });
+
   var total=pending.length, mensal=0, trim=0, ppt=0;
   pending.forEach(function(p){
     var t=vdTipo(p.Obs);
@@ -868,23 +886,6 @@ function renderVD() {
   });
 
   // Table
-  var completions = getCompletions();
-  var completedIds = completions.map(function(c){ return c.id; });
-
-  // Merge real + virtual providências for this date
-  var virtuals = getVirtuals().filter(function(v){ return v.PrazoFatal === val; });
-  var allProvs = provs.concat(virtuals.map(function(v){
-    return {Cliente:v.cliente,Area:v.area,PrazoFatal:v.PrazoFatal,
-            TipoEnvio:v.TipoEnvio,Obs:v.Obs,Cat:v.Cat||'',Classificacao:v.Classificacao||''};
-  }));
-
-  // Filter out already-completed items
-  var pending = allProvs.filter(function(p){
-    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
-  });
-  var doneToday = allProvs.filter(function(p){
-    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) !== -1;
-  });
 
   var sentCount = doneToday.length;
   var sentBadge = sentCount > 0
