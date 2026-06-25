@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
 :root {
   --fius:#009edb; --navy:#111d30; --navy2:#152339; --navy3:#1a2b45;
@@ -292,6 +293,38 @@ tr.sent td:first-child { opacity:1; }
 .adm-inp:focus { border-color:var(--fius); }
 .adm-del { background:transparent;border:1px solid rgba(187,39,75,.35);border-radius:6px;padding:3px 8px;color:#bb274b;font-size:10px;cursor:pointer;font-family:Verdana,sans-serif; }
 .adm-del:hover { background:rgba(187,39,75,.12); }
+
+/* ── EXPORT TOOLBAR ── */
+.export-bar { display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap; }
+.export-bar .exp-label { font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-right:4px; }
+.btn-exp { display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:none;font-family:Verdana,sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:filter .2s; }
+.btn-exp:hover { filter:brightness(1.15); }
+.btn-exp-csv { background:rgba(142,191,34,.18);border:1px solid rgba(142,191,34,.45);color:#8ebf22; }
+.btn-exp-pdf { background:rgba(234,86,39,.15);border:1px solid rgba(234,86,39,.45);color:#ea5627; }
+.btn-exp-clip { background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.35);color:var(--fius); }
+
+/* ── PRINT STYLES ── */
+@media print {
+  body { background:#fff !important; color:#000 !important; font-family:Arial,sans-serif; font-size:11pt; }
+  header, nav, #login-overlay, .export-bar, .pend-done-btn,
+  #page-dashboard, #page-clientes, #page-trab, #page-cx,
+  #page-diaria, #page-cumpridos, #page-admin { display:none !important; }
+  #page-pendentes { display:block !important; }
+  .sec { font-size:14pt; font-weight:bold; color:#111; margin-bottom:10pt; border-bottom:2pt solid #009edb; padding-bottom:6pt; }
+  .card, .card-hdr { background:#fff !important; border:1px solid #ccc !important; box-shadow:none !important; }
+  .card-hdr { border-radius:0 !important; }
+  table { width:100%; border-collapse:collapse; margin-top:10pt; }
+  th { background:#111d30 !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:9pt; padding:5pt 7pt; }
+  td { border-bottom:1px solid #ddd; padding:5pt 7pt; font-size:10pt; }
+  .kpi { background:#f5f5f5 !important; border:1px solid #ccc !important; break-inside:avoid; }
+  .kpi-label { color:#333 !important; }
+  .kpi-value { color:#111 !important; }
+  .kpi-bar { display:none; }
+  #pend-kpis { display:grid !important; grid-template-columns:repeat(4,1fr) !important; gap:8pt !important; margin-bottom:14pt !important; }
+  .print-header { display:block !important; }
+  @page { margin:1.5cm 2cm; size:A4 landscape; }
+}
+.print-header { display:none; }
 </style>
 </head>
 <body>
@@ -496,7 +529,24 @@ tr.sent td:first-child { opacity:1; }
 
   <!-- ⑥ PENDENTES -->
   <div class="page" id="page-pendentes">
+    <!-- cabeçalho visível apenas na impressão -->
+    <div class="print-header" style="margin-bottom:16pt;border-bottom:2pt solid #009edb;padding-bottom:8pt;display:flex;align-items:center;gap:16pt">
+      <div>
+        <div style="font-size:16pt;font-weight:bold;color:#111d30">Finocchio &amp; Ustra Advogados</div>
+        <div style="font-size:10pt;color:#444;margin-top:2pt">Relatório de Providências Pendentes / Atrasadas</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;font-size:9pt;color:#555" id="print-date-stamp"></div>
+    </div>
+
     <div class="sec">Relatórios Pendentes / Atrasados</div>
+
+    <div class="export-bar">
+      <span class="exp-label">Exportar:</span>
+      <button class="btn-exp btn-exp-csv" onclick="exportPendentesCsv()">⬇ CSV / Excel</button>
+      <button class="btn-exp btn-exp-pdf" onclick="exportPendentesPdf()">🖨 Imprimir / PDF</button>
+      <button class="btn-exp btn-exp-clip" onclick="copyPendentesClip(this)">⧉ Copiar resumo</button>
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px" id="pend-kpis"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
       <div>
@@ -530,7 +580,39 @@ tr.sent td:first-child { opacity:1; }
   <div class="page" id="page-admin">
     <div class="sec">Administração de Dados</div>
 
-    <!-- Import/Export bar -->
+    <!-- Sincronização Supabase -->
+    <div class="card" style="margin-bottom:14px;padding:16px 20px;border:1px solid rgba(63,207,142,.25);background:rgba(63,207,142,.04)">
+      <div style="font-size:11px;font-weight:700;color:#3fcf8e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">☁ Sincronização em tempo real (Supabase)</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Configure uma vez e todos os dispositivos ficam sincronizados automaticamente em tempo real.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label class="adm-lbl">Project URL</label><input id="sb-url-input" class="adm-inp" placeholder="https://xxxx.supabase.co"></div>
+        <div><label class="adm-lbl">Anon Key</label><input id="sb-key-input" type="password" class="adm-inp" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button onclick="saveSbConfig()" style="background:#3fcf8e;border:none;border-radius:8px;padding:8px 18px;color:#111;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Conectar</button>
+        <button onclick="testSbConnection()" style="background:rgba(63,207,142,.15);border:1px solid rgba(63,207,142,.4);border-radius:8px;padding:8px 14px;color:#3fcf8e;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Testar conexão</button>
+        <button onclick="clearSbConfig()" style="background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">Desconectar</button>
+        <span id="sb-sync-status" style="font-size:11px;color:var(--gray);margin-left:4px">Não configurado.</span>
+      </div>
+    </div>
+
+    <!-- Backup local -->
+    <div class="card" style="margin-bottom:14px;padding:16px 20px;border:1px solid rgba(239,197,23,.2);background:rgba(239,197,23,.04)">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">💾 Backup Local (arquivo JSON)</div>
+          <div style="font-size:11px;color:var(--gray)" id="backup-status">Clique em "Baixar Backup" para salvar seus dados.</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="downloadBackup()" style="background:rgba(239,197,23,.18);border:1px solid rgba(239,197,23,.45);border-radius:8px;padding:7px 16px;color:var(--yellow);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar Backup</button>
+          <label style="background:rgba(0,158,219,.12);border:1px solid rgba(0,158,219,.3);border-radius:8px;padding:7px 16px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+            ↑ Restaurar Backup <input type="file" accept=".json" id="backup-import-file" style="display:none" onchange="restoreBackup(this)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import/Export base de dados -->
     <div class="card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:16px 20px">
       <span style="font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.6px">Base de dados:</span>
       <span id="admin-source-badge" style="font-size:11px;color:var(--gray)">carregando...</span>
@@ -612,6 +694,16 @@ tr.sent td:first-child { opacity:1; }
   </div>
 
 </div><!-- /container -->
+
+<!-- BACKUP REMINDER TOAST -->
+<div id="backup-toast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:#1a2b45;border:1px solid rgba(239,197,23,.5);border-radius:12px;padding:14px 18px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:320px;font-family:Verdana,sans-serif">
+  <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">💾 Lembrete de Backup</div>
+  <div style="font-size:11px;color:#ccc;margin-bottom:12px">Você marcou um novo cumprido! Faça o backup para não perder seus dados.</div>
+  <div style="display:flex;gap:8px">
+    <button onclick="downloadBackup();document.getElementById('backup-toast').style.display='none'" style="flex:1;background:rgba(239,197,23,.2);border:1px solid rgba(239,197,23,.4);border-radius:7px;padding:6px 10px;color:var(--yellow);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar agora</button>
+    <button onclick="document.getElementById('backup-toast').style.display='none'" style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:6px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Depois</button>
+  </div>
+</div>
 
 <!-- DRAWER -->
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
@@ -1030,18 +1122,167 @@ function renderVD() {
 // ── COMPLETIONS STORE ────────────────────────────────────────────
 var COMP_KEY    = 'fius_completions';
 var VIRTUAL_KEY = 'fius_virtual';
+var SB_URL_KEY   = 'fius_sb_url';
+var SB_KEY_KEY   = 'fius_sb_key';
+var SB_DEFAULT_URL = 'https://skiszfsnhftyvqxuloof.supabase.co';
+var SB_DEFAULT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXN6ZnNuaGZ0eXZxeHVsb29mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MDg2NjgsImV4cCI6MjA5Nzk4NDY2OH0.9cVgH0BMZltX3oq0wAEeFMl7QsMXMffjrrjSOjo5Z6E';
+var SB_ROW_ID    = 'main';
+var _sbClient    = null;
+var _sbChannel   = null;
+var _sbSaveTimer = null;
+
+// ── Supabase: inicializar cliente ─────────────────────────────────
+function getSbConfig() {
+  return {
+    url: localStorage.getItem(SB_URL_KEY) || SB_DEFAULT_URL,
+    key: localStorage.getItem(SB_KEY_KEY) || SB_DEFAULT_KEY
+  };
+}
+function initSupabase() {
+  var cfg = getSbConfig();
+  if (!cfg.url || !cfg.key) { _sbClient = null; return false; }
+  if (typeof supabase === 'undefined' || typeof supabase.createClient !== 'function') {
+    setSbStatus('Erro: biblioteca Supabase não carregou. Verifique sua conexão com a internet.', 'var(--orange)');
+    _sbClient = null; return false;
+  }
+  try {
+    _sbClient = supabase.createClient(cfg.url, cfg.key);
+    return true;
+  } catch(e) {
+    setSbStatus('Erro ao conectar: ' + e.message, 'var(--orange)');
+    _sbClient = null; return false;
+  }
+}
+
+function testSbConnection() {
+  setSbStatus('Testando conexão...', 'var(--yellow)');
+  if (typeof supabase === 'undefined') {
+    setSbStatus('❌ Biblioteca Supabase não carregou (verifique internet).', 'var(--orange)'); return;
+  }
+  if (!initSupabase()) {
+    setSbStatus('❌ Falha ao criar cliente Supabase.', 'var(--orange)'); return;
+  }
+  _sbClient.from('fius_sync').select('id').eq('id', SB_ROW_ID).single()
+    .then(function(res) {
+      if (res.error) {
+        setSbStatus('❌ Erro: ' + res.error.message + ' (code: ' + res.error.code + ')', 'var(--orange)');
+      } else {
+        setSbStatus('✓ Conectado com sucesso! Sincronizando...', '#3fcf8e');
+        sbLoad(true);
+        sbSubscribe();
+      }
+    })
+    .catch(function(e) { setSbStatus('❌ Exceção: ' + e.message, 'var(--orange)'); });
+}
+
+function saveSbConfig() {
+  var url = (document.getElementById('sb-url-input').value||'').trim().replace(/\/$/,'');
+  var key = (document.getElementById('sb-key-input').value||'').trim();
+  if (!url || !key) { alert('Preencha o Project URL e a Anon Key.'); return; }
+  localStorage.setItem(SB_URL_KEY, url);
+  localStorage.setItem(SB_KEY_KEY, key);
+  document.getElementById('sb-url-input').value = '';
+  document.getElementById('sb-key-input').value = '';
+  if (initSupabase()) {
+    setSbStatus('Conectando...', 'var(--yellow)');
+    sbLoad(true);
+    sbSubscribe();
+  }
+}
+function updateSbUI() {
+  var cfg = getSbConfig();
+  if (cfg.url && cfg.key) {
+    setSbStatus(_sbClient ? '✓ Conectado.' : 'Conectando...', _sbClient ? '#3fcf8e' : 'var(--yellow)');
+  } else {
+    setSbStatus('Não configurado.', 'var(--gray)');
+  }
+}
+
+function clearSbConfig() {
+  if (!confirm('Desconectar do Supabase? Os dados locais são mantidos.')) return;
+  localStorage.removeItem(SB_URL_KEY);
+  localStorage.removeItem(SB_KEY_KEY);
+  if (_sbChannel && _sbClient) { _sbClient.removeChannel(_sbChannel); _sbChannel = null; }
+  _sbClient = null;
+  setSbStatus('Não configurado.', 'var(--gray)');
+}
+
+function setSbStatus(msg, color) {
+  var el = document.getElementById('sb-sync-status');
+  if (el) { el.textContent = msg; el.style.color = color||'var(--gray)'; }
+}
+
+// ── Supabase: carregar dados ──────────────────────────────────────
+function sbLoad(showMsg) {
+  if (!_sbClient) return;
+  _sbClient.from('fius_sync').select('completions,virtuals').eq('id', SB_ROW_ID).single()
+    .then(function(res) {
+      if (res.error) {
+        if (res.error.code === 'PGRST116') {
+          // Linha não existe ainda — criar
+          return _sbClient.from('fius_sync').insert({ id: SB_ROW_ID, completions: [], virtuals: [] });
+        }
+        setSbStatus('Erro: ' + res.error.message, 'var(--orange)'); return;
+      }
+      var d = res.data;
+      if (d.completions) localStorage.setItem(COMP_KEY, JSON.stringify(d.completions));
+      if (d.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(d.virtuals));
+      renderVD(); renderPendentes(); renderCumpridos();
+      updateBackupStatus();
+      if (showMsg) setSbStatus('✓ Sincronizado em ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+      else setSbStatus('✓ Conectado e sincronizado.', '#3fcf8e');
+    });
+}
+
+// ── Supabase: salvar dados ────────────────────────────────────────
+function sbSave() {
+  if (!_sbClient) return;
+  var payload = { completions: getCompletions(), virtuals: getVirtuals(), updated_at: new Date().toISOString() };
+  _sbClient.from('fius_sync').upsert(Object.assign({ id: SB_ROW_ID }, payload))
+    .then(function(res) {
+      if (res.error) setSbStatus('Erro ao salvar: ' + res.error.message, 'var(--orange)');
+      else setSbStatus('✓ Salvo em ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+    });
+}
+
+// Debounce: salva 1s após última alteração
+function scheduleSbSave() {
+  if (!_sbClient) return;
+  clearTimeout(_sbSaveTimer);
+  _sbSaveTimer = setTimeout(sbSave, 1000);
+}
+
+// ── Supabase: escutar mudanças em tempo real ──────────────────────
+function sbSubscribe() {
+  if (!_sbClient) return;
+  if (_sbChannel) _sbClient.removeChannel(_sbChannel);
+  _sbChannel = _sbClient
+    .channel('fius-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'fius_sync', filter: 'id=eq.' + SB_ROW_ID },
+      function(payload) {
+        var d = payload.new;
+        if (!d) return;
+        if (d.completions) localStorage.setItem(COMP_KEY, JSON.stringify(d.completions));
+        if (d.virtuals)    localStorage.setItem(VIRTUAL_KEY, JSON.stringify(d.virtuals));
+        renderVD(); renderPendentes(); renderCumpridos();
+        setSbStatus('✓ Atualizado em tempo real — ' + new Date().toLocaleTimeString('pt-BR'), '#3fcf8e');
+      })
+    .subscribe();
+}
 
 function getCompletions() {
-  return JSON.parse(localStorage.getItem(COMP_KEY) || '[]');
+  try { return JSON.parse(localStorage.getItem(COMP_KEY) || '[]'); } catch(e) { return []; }
 }
 function saveCompletions(arr) {
   localStorage.setItem(COMP_KEY, JSON.stringify(arr));
+  scheduleSbSave();
 }
 function getVirtuals() {
-  return JSON.parse(localStorage.getItem(VIRTUAL_KEY) || '[]');
+  try { return JSON.parse(localStorage.getItem(VIRTUAL_KEY) || '[]'); } catch(e) { return []; }
 }
 function saveVirtuals(arr) {
   localStorage.setItem(VIRTUAL_KEY, JSON.stringify(arr));
+  scheduleSbSave();
 }
 function compId(cliente, area, prazoFatal) {
   return cliente + '||' + area + '||' + prazoFatal;
@@ -1107,6 +1348,7 @@ function toggleCompletion(e, cliente, area, prazoFatal, tipoEnvio, obs) {
     saveCompletions(arr);
     // Create virtual occurrence for next month
     addVirtualOccurrence(cliente, area, next, tipoEnvio, obs, prazoFatal);
+    showBackupReminder();
   } else {
     var removed = arr[pos];
     arr.splice(pos, 1);
@@ -1208,7 +1450,7 @@ function pendTable(list, today) {
     return '<tr>'+
       '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
       '<td>'+p.Area+'</td>'+
-      '<td>'+p.PrazoFatal.split('-').reverse().join('/')+'</td>'+
+      '<td>'+(p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—')+'</td>'+
       '<td><span style="color:'+cor+';font-weight:700;font-size:11px">+'+dias+' dia'+(dias!==1?'s':'')+'</span></td>'+
       '<td><button class="pend-done-btn"'+
         ' data-c="'+p.Cliente.replace(/"/g,'&quot;')+'"'+
@@ -1240,6 +1482,7 @@ document.addEventListener('click', function(e) {
               tipoEnvio:te, obs:obs, completedDate:todayStr(), nextDate:next});
     saveCompletions(arr);
     addVirtualOccurrence(cliente, area, next, te, obs, pf);
+    showBackupReminder();
   }
   renderPendentes();
 });
@@ -1251,8 +1494,8 @@ function renderCumpridos() {
 
   var today = todayStr();
   var thisMonth = today.slice(0,7);
-  var thisMonthCount = arr.filter(function(c){ return c.completedDate.startsWith(thisMonth); }).length;
-  var antecipados = arr.filter(function(c){ return c.completedDate < c.prazoFatal; }).length;
+  var thisMonthCount = arr.filter(function(c){ return c.completedDate && c.completedDate.startsWith(thisMonth); }).length;
+  var antecipados = arr.filter(function(c){ return c.completedDate && c.prazoFatal && c.completedDate < c.prazoFatal; }).length;
 
   document.getElementById('cum-kpis').innerHTML =
     kpiMini('Total Cumpridos', arr.length, 'var(--green2)') +
@@ -1274,10 +1517,10 @@ function renderCumpridos() {
       '<td style="font-weight:700;font-size:12px">'+c.cliente+'</td>'+
       '<td>'+c.area+'</td>'+
       '<td>'+envTag(c.tipoEnvio)+'</td>'+
-      '<td>'+c.prazoFatal.split('-').reverse().join('/')+'</td>'+
-      '<td style="color:var(--green2);font-weight:700">'+c.completedDate.split('-').reverse().join('/')+'</td>'+
+      '<td>'+(c.prazoFatal ? c.prazoFatal.split('-').reverse().join('/') : '—')+'</td>'+
+      '<td style="color:var(--green2);font-weight:700">'+(c.completedDate ? c.completedDate.split('-').reverse().join('/') : '—')+'</td>'+
       '<td>'+badge+'</td>'+
-      '<td style="color:var(--gray);font-size:10px">'+c.nextDate.split('-').reverse().join('/')+'</td>'+
+      '<td style="color:var(--gray);font-size:10px">'+(c.nextDate ? c.nextDate.split('-').reverse().join('/') : '—')+'</td>'+
       '<td><button class="undo-comp-btn" data-id="'+encodeURIComponent(c.id)+'" '+
         'style="background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Desfazer</button></td>'+
     '</tr>';
@@ -1305,8 +1548,14 @@ document.addEventListener('DOMContentLoaded', function(){
   var today = new Date().toISOString().split('T')[0];
   var inp = document.getElementById('vdDate');
   if(inp) inp.value = today;
-  // Sync virtual occurrences for all existing completions
   syncVirtualOccurrences();
+  // Inicializa Supabase se já configurado
+  if (initSupabase()) {
+    sbLoad(false);
+    sbSubscribe();
+    setSbStatus('Conectando...', 'var(--yellow)');
+  }
+  updateSbUI();
 });
 
 
@@ -1373,6 +1622,8 @@ function switchAdminTab(tab, el) {
 }
 
 function renderAdmin() {
+  updateBackupStatus();
+  updateSbUI();
   var data = getAdminData();
   var badge = document.getElementById('admin-source-badge');
   if (badge) badge.textContent = isUsingCustomData()
@@ -1496,6 +1747,73 @@ function deleteCliente(idx) {
   renderAdminCli();
 }
 
+// ── BACKUP DE CUMPRIDOS / AGENDAMENTOS ───────────────────────────
+var BACKUP_KEY = 'fius_last_backup';
+
+function getBackupData() {
+  return {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    completions: getCompletions(),
+    virtuals: getVirtuals()
+  };
+}
+
+function downloadBackup() {
+  var data = getBackupData();
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fius_backup_cumpridos_' + todayStr() + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  localStorage.setItem(BACKUP_KEY, todayStr());
+  updateBackupStatus();
+}
+
+function restoreBackup(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      var comps = data.completions || data.fius_completions || [];
+      var virts = data.virtuals   || data.fius_virtual     || [];
+      if (!Array.isArray(comps)) throw new Error('Formato inválido');
+      saveCompletions(comps);
+      localStorage.setItem(VIRTUAL_KEY, JSON.stringify(virts));
+      alert('✓ Backup restaurado! ' + comps.length + ' cumpridos e ' + virts.length + ' agendamentos futuros recuperados.');
+      updateBackupStatus();
+      renderCumpridos();
+      renderPendentes();
+    } catch(err) {
+      alert('Erro ao restaurar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function showBackupReminder() {
+  var toast = document.getElementById('backup-toast');
+  if (toast) { toast.style.display = 'block'; }
+}
+
+function updateBackupStatus() {
+  var el = document.getElementById('backup-status');
+  if (!el) return;
+  var last = localStorage.getItem(BACKUP_KEY);
+  var comps = getCompletions().length;
+  var virts = getVirtuals().length;
+  if (last) {
+    el.innerHTML = comps + ' cumprido(s) · ' + virts + ' agendamento(s) futuro(s) · <span style="color:var(--green2)">Último backup: ' + last.split('-').reverse().join('/') + '</span>';
+  } else {
+    el.innerHTML = comps + ' cumprido(s) · ' + virts + ' agendamento(s) futuro(s) · <span style="color:var(--orange)">Nenhum backup realizado ainda — faça um agora!</span>';
+  }
+}
+
 function exportAdminData() {
   var data = getAdminData();
   var json = JSON.stringify(data, null, 2);
@@ -1530,6 +1848,99 @@ function resetAdminData() {
   if (!confirm('Restaurar os dados originais da planilha? Todas as alterações locais serão perdidas.')) return;
   localStorage.removeItem(ADMIN_KEY);
   renderAdmin();
+}
+
+// ── EXPORTAÇÃO PENDENTES ──────────────────────────────────────────
+function getPendentesData() {
+  var today = todayStr();
+  var completedIds = getCompletions().map(function(c){ return c.id; });
+  var virtuals = getVirtuals();
+  var allProv = PROVIDENCIAS.concat(virtuals.map(function(v){
+    return {Cliente:v.cliente,Area:v.area,PrazoFatal:v.PrazoFatal,TipoEnvio:v.TipoEnvio,Obs:v.Obs};
+  }));
+  var overdue = allProv.filter(function(p){
+    if (!p.PrazoFatal || p.PrazoFatal >= today) return false;
+    return completedIds.indexOf(compId(p.Cliente, p.Area, p.PrazoFatal)) === -1;
+  }).sort(function(a,b){ return a.PrazoFatal < b.PrazoFatal ? -1 : 1; });
+  return { overdue: overdue, today: today };
+}
+
+function exportPendentesCsv() {
+  var data = getPendentesData();
+  var bom = '﻿';
+  var header = ['Tipo', 'Cliente', 'Área', 'Prazo Fatal', 'Dias Atraso', 'Observação'];
+  var rows = data.overdue.map(function(p) {
+    var dias = daysBetween(p.PrazoFatal, data.today);
+    var prazoFmt = p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—';
+    return [p.TipoEnvio, p.Cliente, p.Area, prazoFmt, '+' + dias + (dias!==1?' dias':' dia'), p.Obs||''];
+  });
+  var csv = bom + [header].concat(rows).map(function(r){
+    return r.map(function(cell){
+      var s = String(cell).replace(/"/g,'""');
+      return s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0 ? '"'+s+'"' : s;
+    }).join(';');
+  }).join('\r\n');
+
+  var today = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Pendentes_FIUS_' + today + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportPendentesPdf() {
+  var stamp = document.getElementById('print-date-stamp');
+  if (stamp) {
+    var now = new Date();
+    stamp.textContent = 'Emitido em ' + now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  }
+  window.print();
+}
+
+function copyPendentesClip(btn) {
+  var data = getPendentesData();
+  var cj   = data.overdue.filter(function(p){ return p.TipoEnvio === 'C.J.'; });
+  var trab = data.overdue.filter(function(p){ return p.TipoEnvio === 'Trabalhista'; });
+
+  var lines = [
+    '📋 *Relatórios Pendentes — Finocchio & Ustra*',
+    'Data: ' + new Date().toLocaleDateString('pt-BR'),
+    '',
+    '⚠️ Total atrasados: ' + data.overdue.length,
+    '   • C.J.: ' + cj.length,
+    '   • Trabalhista: ' + trab.length,
+    '   • Clientes afetados: ' + new Set(data.overdue.map(function(p){return p.Cliente;})).size,
+    ''
+  ];
+
+  if (cj.length) {
+    lines.push('*C.J. (Controladoria Jurídica):*');
+    cj.forEach(function(p){
+      var dias = daysBetween(p.PrazoFatal, data.today);
+      var prazo = p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—';
+      lines.push('  - ' + p.Cliente + ' | ' + p.Area + ' | Prazo: ' + prazo + ' (+' + dias + 'd)');
+    });
+    lines.push('');
+  }
+  if (trab.length) {
+    lines.push('*Trabalhista:*');
+    trab.forEach(function(p){
+      var dias = daysBetween(p.PrazoFatal, data.today);
+      var prazo = p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—';
+      lines.push('  - ' + p.Cliente + ' | ' + p.Area + ' | Prazo: ' + prazo + ' (+' + dias + 'd)');
+    });
+  }
+
+  var text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.textContent;
+    btn.textContent = '✓ Copiado!';
+    setTimeout(function(){ btn.textContent = orig; }, 2000);
+  }).catch(function(){
+    prompt('Copie o texto abaixo:', text);
+  });
 }
 
 </script>
