@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volumetria de Relatórios 2026 — Finocchio & Ustra</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
 :root {
   --fius:#009edb; --navy:#111d30; --navy2:#152339; --navy3:#1a2b45;
@@ -590,6 +590,7 @@ tr.sent td:first-child { opacity:1; }
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button onclick="saveSbConfig()" style="background:#3fcf8e;border:none;border-radius:8px;padding:8px 18px;color:#111;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Conectar</button>
+        <button onclick="testSbConnection()" style="background:rgba(63,207,142,.15);border:1px solid rgba(63,207,142,.4);border-radius:8px;padding:8px 14px;color:#3fcf8e;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Testar conexão</button>
         <button onclick="clearSbConfig()" style="background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">Desconectar</button>
         <span id="sb-sync-status" style="font-size:11px;color:var(--gray);margin-left:4px">Não configurado.</span>
       </div>
@@ -1140,10 +1141,38 @@ function getSbConfig() {
 function initSupabase() {
   var cfg = getSbConfig();
   if (!cfg.url || !cfg.key) { _sbClient = null; return false; }
+  if (typeof supabase === 'undefined' || typeof supabase.createClient !== 'function') {
+    setSbStatus('Erro: biblioteca Supabase não carregou. Verifique sua conexão com a internet.', 'var(--orange)');
+    _sbClient = null; return false;
+  }
   try {
     _sbClient = supabase.createClient(cfg.url, cfg.key);
     return true;
-  } catch(e) { _sbClient = null; return false; }
+  } catch(e) {
+    setSbStatus('Erro ao conectar: ' + e.message, 'var(--orange)');
+    _sbClient = null; return false;
+  }
+}
+
+function testSbConnection() {
+  setSbStatus('Testando conexão...', 'var(--yellow)');
+  if (typeof supabase === 'undefined') {
+    setSbStatus('❌ Biblioteca Supabase não carregou (verifique internet).', 'var(--orange)'); return;
+  }
+  if (!initSupabase()) {
+    setSbStatus('❌ Falha ao criar cliente Supabase.', 'var(--orange)'); return;
+  }
+  _sbClient.from('fius_sync').select('id').eq('id', SB_ROW_ID).single()
+    .then(function(res) {
+      if (res.error) {
+        setSbStatus('❌ Erro: ' + res.error.message + ' (code: ' + res.error.code + ')', 'var(--orange)');
+      } else {
+        setSbStatus('✓ Conectado com sucesso! Sincronizando...', '#3fcf8e');
+        sbLoad(true);
+        sbSubscribe();
+      }
+    })
+    .catch(function(e) { setSbStatus('❌ Exceção: ' + e.message, 'var(--orange)'); });
 }
 
 function saveSbConfig() {
