@@ -7,9 +7,9 @@ export interface Dor {
   who: string | null
   impact: string | null
   priority: Priority
-  column: ColumnId
+  stage: ColumnId
   created_at: string
   created_by: string | null
 }
 
-export type NewDorData = Omit<Dor, 'id' | 'created_at' | 'created_by' | 'column'>
+export type NewDorData = Omit<Dor, 'id' | 'created_at' | 'created_by' | 'stage'>

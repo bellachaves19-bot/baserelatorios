@@ -38,15 +38,15 @@ export default function KanbanBoard({ initialDores, userId, userEmail }: KanbanB
 
   const stats = useMemo(() => ({
     total:       dores.length,
-    inProgress:  dores.filter((d) => d.column === 'andamento').length,
-    highPriority:dores.filter((d) => d.priority === 'alta' && d.column !== 'resolvida').length,
-    resolved:    dores.filter((d) => d.column === 'resolvida').length,
+    inProgress:  dores.filter((d) => d.stage === 'andamento').length,
+    highPriority:dores.filter((d) => d.priority === 'alta' && d.stage !== 'resolvida').length,
+    resolved:    dores.filter((d) => d.stage === 'resolvida').length,
   }), [dores])
 
   const handleCreate = useCallback(async (data: NewDorData) => {
     const { data: inserted, error: err } = await supabase
       .from('dores')
-      .insert({ ...data, column: 'dor', created_by: userId })
+      .insert({ ...data, stage: 'dor', created_by: userId })
       .select()
       .single()
 
@@ -58,15 +58,15 @@ export default function KanbanBoard({ initialDores, userId, userEmail }: KanbanB
     const dor = dores.find((d) => d.id === id)
     if (!dor) return
 
-    const idx      = COLUMNS.findIndex((c) => c.id === dor.column)
+    const idx      = COLUMNS.findIndex((c) => c.id === dor.stage)
     const newIdx   = Math.min(Math.max(idx + dir, 0), COLUMNS.length - 1)
     const newColumn = COLUMNS[newIdx].id
 
     setDores((prev) => prev.map((d) => d.id === id ? { ...d, column: newColumn } : d))
 
-    const { error: err } = await supabase.from('dores').update({ column: newColumn }).eq('id', id)
+    const { error: err } = await supabase.from('dores').update({ stage: newColumn }).eq('id', id)
     if (err) {
-      setDores((prev) => prev.map((d) => d.id === id ? { ...d, column: dor.column } : d))
+      setDores((prev) => prev.map((d) => d.id === id ? { ...d, column: dor.stage } : d))
       setError('Erro ao mover card.')
     }
   }, [dores, supabase])
@@ -172,7 +172,7 @@ export default function KanbanBoard({ initialDores, userId, userEmail }: KanbanB
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {COLUMNS.map((col, colIdx) => {
             const colDores = dores
-              .filter((d) => d.column === col.id)
+              .filter((d) => d.stage === col.id)
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
             const accent = COLUMN_ACCENT[col.id]
