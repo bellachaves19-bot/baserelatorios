@@ -37,7 +37,7 @@ jobs:
 
           # Vai para gh-pages e atualiza
           git fetch origin gh-pages
-          git checkout gh-pages
+          git checkout -f gh-pages
           cp /tmp/dashboard_novo.html index.html
           git add index.html
           git diff --staged --quiet || git commit -m "Auto: dashboard atualizado $(date '+%d/%m/%Y %H:%M')"
