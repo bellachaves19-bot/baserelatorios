@@ -230,7 +230,7 @@ function pendTable(list, today) {
         ' data-pf="'+p.PrazoFatal+'"'+
         ' data-te="'+p.TipoEnvio+'"'+
         ' data-ob="'+encodeURIComponent(p.Obs||'')+'"'+
-        ' style="background:rgba(88,176,49,.1);border:1px solid rgba(88,176,49,.3);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">'+
+        ' style="background:rgba(88,176,49,.1);border:1px solid rgba(88,176,49,.3);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Calibri,\'Gill Sans MT\',Arial,sans-serif">'+
         '✓ Marcar cumprido</button>'+
       '</td></tr>';
   }).join('');
