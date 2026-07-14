@@ -182,6 +182,116 @@ hoje = date.today().strftime("%d/%m/%Y")
 
 # ── Inject nos placeholders do template ──────────────────────────
 template = TEMPLATE.read_text(encoding="utf-8")
+
+# ── Design v2: patch visual antes dos placeholders ────────────────
+_CSS_V2 = """<style id="design-v2">
+.container{padding:32px 36px 64px}
+.sec{display:block;margin-bottom:24px;padding-bottom:10px;border-bottom:1px solid rgba(0,158,219,.18)}
+.sec::after{display:none}
+.kpi-grid{grid-template-columns:2fr 1fr 1fr 1fr;gap:16px;margin-bottom:32px}
+.kpi{padding:28px 28px 22px;transition:border-color .2s}
+.kpi:hover{border-color:rgba(0,158,219,.4);transform:none}
+.kpi-bar{display:none}
+.kpi-label{font-size:9px;letter-spacing:.9px;margin-bottom:12px}
+.kpi-value{font-size:48px;font-family:Georgia,'Times New Roman',serif;font-variant-numeric:tabular-nums;margin:0 0 8px}
+.kpi.kpi-primary .kpi-value{font-size:64px}
+.kpi-accent-line{width:24px;height:3px;background:var(--c,var(--fius));border-radius:2px;margin-bottom:16px}
+.card-hdr-bar{display:none}
+.card-hdr h3{font-size:10px;letter-spacing:1px}
+.card-hdr{margin-bottom:20px}
+.charts-grid{gap:16px;margin-bottom:16px}
+.card{padding:24px}
+.card-hdr .cnt{font-variant-numeric:tabular-nums}
+.trab-mini:hover{transform:none;border-color:rgba(0,158,219,.5)}
+.cx-card:hover{transform:none;border-color:rgba(0,158,219,.65)}
+.vd-kpi-value{font-family:Georgia,'Times New Roman',serif;font-variant-numeric:tabular-nums}
+</style>"""
+template = template.replace("</head>", _CSS_V2 + "\n</head>", 1)
+
+# KPI grid: reorder (Providências → destaque) + trocar kpi-bar por kpi-accent-line
+template = template.replace(
+    '    <div class="kpi-grid">\n'
+    '      <div class="kpi" style="--c:#009edb"><div class="kpi-bar"></div><div class="kpi-label">Total de Clientes</div><div class="kpi-value">{{TOTAL_CLIENTES}}</div><div class="kpi-sub">5 categorias ativas</div></div>\n'
+    '      <div class="kpi" style="--c:#68c4d4"><div class="kpi-bar"></div><div class="kpi-label">Total de Providências</div><div class="kpi-value">{{TOTAL_PROVIDENCIAS}}</div><div class="kpi-sub">Cadastradas e ativas</div></div>\n'
+    '      <div class="kpi" style="--c:#efc517"><div class="kpi-bar"></div><div class="kpi-label">Clientes CX — Cat. 1</div><div class="kpi-value">{{TOTAL_CX}}</div><div class="kpi-sub">Com Key Account dedicado</div></div>\n'
+    '      <div class="kpi" style="--c:#8ebf22"><div class="kpi-bar"></div><div class="kpi-label">Fluxo Trabalhista</div><div class="kpi-value">{{TOTAL_TRAB_CLI}}</div><div class="kpi-sub">Envio diferenciado</div></div>\n'
+    '    </div>',
+    '    <div class="kpi-grid">\n'
+    '      <div class="kpi kpi-primary" style="--c:#009edb"><div class="kpi-accent-line"></div><div class="kpi-label">Total de Providências</div><div class="kpi-value">{{TOTAL_PROVIDENCIAS}}</div><div class="kpi-sub">Cadastradas e ativas</div></div>\n'
+    '      <div class="kpi" style="--c:#68c4d4"><div class="kpi-accent-line" style="background:#68c4d4"></div><div class="kpi-label">Total de Clientes</div><div class="kpi-value">{{TOTAL_CLIENTES}}</div><div class="kpi-sub">5 categorias ativas</div></div>\n'
+    '      <div class="kpi" style="--c:#efc517"><div class="kpi-accent-line" style="background:#efc517"></div><div class="kpi-label">Clientes CX — Cat. 1</div><div class="kpi-value">{{TOTAL_CX}}</div><div class="kpi-sub">Com Key Account dedicado</div></div>\n'
+    '      <div class="kpi" style="--c:#8ebf22"><div class="kpi-accent-line" style="background:#8ebf22"></div><div class="kpi-label">Fluxo Trabalhista</div><div class="kpi-value">{{TOTAL_TRAB_CLI}}</div><div class="kpi-sub">Envio diferenciado</div></div>\n'
+    '    </div>'
+)
+
+# VD KPIs: substituir kpi-bar por kpi-accent-line
+for _old, _new in [
+    ('<div class="kpi" style="--c:var(--fius)"><div class="kpi-bar"></div><div class="kpi-label">Total</div>',
+     '<div class="kpi" style="--c:var(--fius)"><div class="kpi-accent-line"></div><div class="kpi-label">Total</div>'),
+    ('<div class="kpi" style="--c:var(--green)"><div class="kpi-bar"></div><div class="kpi-label">Mensal</div>',
+     '<div class="kpi" style="--c:var(--green)"><div class="kpi-accent-line" style="background:var(--green)"></div><div class="kpi-label">Mensal</div>'),
+    ('<div class="kpi" style="--c:var(--teal)"><div class="kpi-bar"></div><div class="kpi-label">Trimestral</div>',
+     '<div class="kpi" style="--c:var(--teal)"><div class="kpi-accent-line" style="background:var(--teal)"></div><div class="kpi-label">Trimestral</div>'),
+    ('<div class="kpi" style="--c:var(--purple)"><div class="kpi-bar"></div><div class="kpi-label">PPT / Outros</div>',
+     '<div class="kpi" style="--c:var(--purple)"><div class="kpi-accent-line" style="background:var(--purple)"></div><div class="kpi-label">PPT / Outros</div>'),
+]:
+    template = template.replace(_old, _new)
+
+# Injetar JS v2: arcAtraso() + redefinir kpiMini() + pendTable() com arco
+_JS_V2 = """<script id="design-v2-js">
+function arcAtraso(dias) {
+  var pct = Math.min(dias / 90, 1);
+  var sweep = pct * 270;
+  var r = 14, cx = 18, cy = 18, sz = 36;
+  var startAngle = -225 * Math.PI / 180;
+  var endAngle = startAngle + sweep * Math.PI / 180;
+  var x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
+  var x2 = cx + r * Math.cos(endAngle),   y2 = cy + r * Math.sin(endAngle);
+  var large = sweep > 180 ? 1 : 0;
+  var col = dias > 30 ? '#bb274b' : dias > 7 ? '#ea5627' : '#efc517';
+  var arcPath = sweep < 1 ? '' :
+    'M '+x1.toFixed(2)+' '+y1.toFixed(2)+
+    ' A '+r+' '+r+' 0 '+large+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2);
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'" aria-hidden="true" style="flex-shrink:0">'+
+    (arcPath ? '<path d="'+arcPath+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round"/>' : '')+
+  '</svg>';
+}
+function kpiMini(label, val, color) {
+  return '<div class="kpi" style="--c:'+color+'">'+
+    '<div class="kpi-accent-line" style="background:'+color+'"></div>'+
+    '<div class="kpi-label">'+label+'</div>'+
+    '<div class="kpi-value" style="font-size:36px">'+val+'</div></div>';
+}
+function pendTable(list, today) {
+  if (!list.length) return '<div style="padding:20px;color:var(--gray);font-size:12px;text-align:center">Nenhum atraso ✓</div>';
+  var sorted = list.slice().sort(function(a,b){ return a.PrazoFatal < b.PrazoFatal ? -1 : 1; });
+  var rows = sorted.map(function(p){
+    var dias = daysBetween(p.PrazoFatal, today);
+    var cor = dias > 30 ? 'var(--red)' : dias > 7 ? 'var(--orange)' : 'var(--yellow)';
+    return '<tr>'+
+      '<td style="font-weight:700;font-size:12px">'+p.Cliente+'</td>'+
+      '<td>'+p.Area+'</td>'+
+      '<td>'+(p.PrazoFatal ? p.PrazoFatal.split('-').reverse().join('/') : '—')+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px">'+
+        arcAtraso(dias)+
+        '<span style="color:'+cor+';font-weight:700;font-size:11px;font-variant-numeric:tabular-nums">+'+dias+' dia'+(dias!==1?'s':'')+'</span>'+
+      '</div></td>'+
+      '<td><button class="pend-done-btn"'+
+        ' data-c="'+p.Cliente.replace(/"/g,'&quot;')+'"'+
+        ' data-a="'+p.Area.replace(/"/g,'&quot;')+'"'+
+        ' data-pf="'+p.PrazoFatal+'"'+
+        ' data-te="'+p.TipoEnvio+'"'+
+        ' data-ob="'+encodeURIComponent(p.Obs||'')+'"'+
+        ' style="background:rgba(88,176,49,.15);border:1px solid rgba(88,176,49,.4);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">'+
+        '✓ Marcar cumprido</button>'+
+      '</td></tr>';
+  }).join('');
+  return '<table><thead><tr><th>Cliente</th><th>Área</th><th>Prazo</th><th>Atraso</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+</script>"""
+template = template.replace("</body>", _JS_V2 + "\n</body>", 1)
+# ── Fim design v2 ─────────────────────────────────────────────────
+
 template = template.replace("{{DATA_ATUALIZACAO}}", hoje)
 template = template.replace("{{TOTAL_CLIENTES}}", str(total_clientes))
 template = template.replace("{{TOTAL_PROVIDENCIAS}}", str(total_provs))
