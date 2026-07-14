@@ -77,7 +77,7 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:Calibri,'Gill Sans MT','Trebuchet MS',Arial,sans-serif;font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:Calibri,'Gill Sans MT','Trebuchet MS',Arial,sans-serif;font-size:16px;line-height:1.5;min-height:100vh;overflow-x:hidden}
 
 /* ── HEADER ── */
 header{background:var(--hdr-bg);border-bottom:1px solid var(--border);padding:0 36px;height:66px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:200;box-shadow:var(--shadow-hdr)}
@@ -296,7 +296,7 @@ tr.sent td:first-child{opacity:1}
 /* ── EXPORT TOOLBAR ── */
 .export-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
 .export-bar .exp-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-right:4px}
-.btn-exp{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:none;font-family:Verdana,sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:filter .2s}
+.btn-exp{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:none;font-family:Calibri,'Gill Sans MT',Arial,sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:filter .2s}
 .btn-exp:hover{filter:brightness(.95)}
 .btn-exp-csv{background:rgba(142,191,34,.1);border:1px solid rgba(142,191,34,.3);color:#5a7a10}
 .btn-exp-pdf{background:rgba(234,86,39,.08);border:1px solid rgba(234,86,39,.3);color:#ea5627}
@@ -589,9 +589,9 @@ tr.sent td:first-child{opacity:1}
         <div><label class="adm-lbl">Anon Key</label><input id="sb-key-input" type="password" class="adm-inp" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button onclick="saveSbConfig()" style="background:#2aab74;border:none;border-radius:8px;padding:8px 18px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Conectar</button>
-        <button onclick="testSbConnection()" style="background:rgba(42,171,116,.1);border:1px solid rgba(42,171,116,.35);border-radius:8px;padding:8px 14px;color:#2aab74;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">Testar conexão</button>
-        <button onclick="clearSbConfig()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">Desconectar</button>
+        <button onclick="saveSbConfig()" style="background:#2aab74;border:none;border-radius:8px;padding:8px 18px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">Conectar</button>
+        <button onclick="testSbConnection()" style="background:rgba(42,171,116,.1);border:1px solid rgba(42,171,116,.35);border-radius:8px;padding:8px 14px;color:#2aab74;font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">Testar conexão</button>
+        <button onclick="clearSbConfig()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">Desconectar</button>
         <span id="sb-sync-status" style="font-size:11px;color:var(--gray);margin-left:4px">Não configurado.</span>
       </div>
     </div>
@@ -604,8 +604,8 @@ tr.sent td:first-child{opacity:1}
           <div style="font-size:11px;color:var(--gray)" id="backup-status">Clique em "Baixar Backup" para salvar seus dados.</div>
         </div>
         <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="downloadBackup()" style="background:rgba(239,197,23,.1);border:1px solid rgba(239,197,23,.35);border-radius:8px;padding:7px 16px;color:#8a6e00;font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar Backup</button>
-          <label style="background:rgba(0,158,219,.08);border:1px solid rgba(0,158,219,.25);border-radius:8px;padding:7px 16px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+          <button onclick="downloadBackup()" style="background:rgba(239,197,23,.1);border:1px solid rgba(239,197,23,.35);border-radius:8px;padding:7px 16px;color:#8a6e00;font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">⬇ Baixar Backup</button>
+          <label style="background:rgba(0,158,219,.08);border:1px solid rgba(0,158,219,.25);border-radius:8px;padding:7px 16px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">
             ↑ Restaurar Backup <input type="file" accept=".json" id="backup-import-file" style="display:none" onchange="restoreBackup(this)">
           </label>
         </div>
@@ -617,11 +617,11 @@ tr.sent td:first-child{opacity:1}
       <span style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px">Base de dados:</span>
       <span id="admin-source-badge" style="font-size:11px;color:var(--gray)">carregando...</span>
       <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
-        <label style="background:rgba(0,158,219,.08);border:1px solid rgba(0,158,219,.25);border-radius:8px;padding:7px 14px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">
+        <label style="background:rgba(0,158,219,.08);border:1px solid rgba(0,158,219,.25);border-radius:8px;padding:7px 14px;color:var(--fius);font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">
           ↑ Importar JSON <input type="file" accept=".json" id="admin-import-file" style="display:none" onchange="importAdminData(this)">
         </label>
-        <button onclick="exportAdminData()" style="background:rgba(88,176,49,.1);border:1px solid rgba(88,176,49,.25);border-radius:8px;padding:7px 14px;color:var(--green2);font-size:11px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">↓ Exportar JSON</button>
-        <button onclick="resetAdminData()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Verdana,sans-serif">↺ Restaurar original</button>
+        <button onclick="exportAdminData()" style="background:rgba(88,176,49,.1);border:1px solid rgba(88,176,49,.25);border-radius:8px;padding:7px 14px;color:var(--green2);font-size:11px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">↓ Exportar JSON</button>
+        <button onclick="resetAdminData()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--gray);font-size:11px;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">↺ Restaurar original</button>
       </div>
     </div>
 
@@ -650,7 +650,7 @@ tr.sent td:first-child{opacity:1}
           <div><label class="adm-lbl">Prazo Fatal</label><input class="adm-inp" id="nr-prazo" type="date"></div>
           <div style="grid-column:span 2"><label class="adm-lbl">Observações</label><input class="adm-inp" id="nr-obs" placeholder="Ex: Relatório Mensal - Cliente X - Envio todo dia 10"></div>
         </div>
-        <button onclick="addRelatorio()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <button onclick="addRelatorio()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Calibri,'Gill Sans MT',Arial,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
         <span id="nr-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
       </div>
       <div class="card" style="overflow-x:auto;padding:0" id="admin-relat-table"></div>
@@ -683,7 +683,7 @@ tr.sent td:first-child{opacity:1}
           </div>
           <div><label class="adm-lbl">Áreas CJ (separadas por |)</label><input class="adm-inp" id="nc-areas" placeholder="Ex: Cível | Tributário Judicial"></div>
         </div>
-        <button onclick="addCliente()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Verdana,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+        <button onclick="addCliente()" style="background:var(--fius);border:none;border-radius:8px;padding:9px 20px;color:#fff;font-family:Calibri,'Gill Sans MT',Arial,sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
         <span id="nc-msg" style="margin-left:12px;font-size:11px;color:var(--green2)"></span>
       </div>
       <div class="card" style="overflow-x:auto;padding:0" id="admin-cli-table"></div>
@@ -696,12 +696,12 @@ tr.sent td:first-child{opacity:1}
 </div><!-- /container -->
 
 <!-- BACKUP REMINDER TOAST -->
-<div id="backup-toast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:#fff;border:1px solid rgba(239,197,23,.5);border-radius:12px;padding:14px 18px;box-shadow:0 4px 24px rgba(0,0,0,.15);max-width:320px;font-family:Verdana,sans-serif">
+<div id="backup-toast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:#fff;border:1px solid rgba(239,197,23,.5);border-radius:12px;padding:14px 18px;box-shadow:0 4px 24px rgba(0,0,0,.15);max-width:320px;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">
   <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">💾 Lembrete de Backup</div>
   <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Você marcou um novo cumprido! Faça o backup para não perder seus dados.</div>
   <div style="display:flex;gap:8px">
-    <button onclick="downloadBackup();document.getElementById('backup-toast').style.display='none'" style="flex:1;background:rgba(239,197,23,.12);border:1px solid rgba(239,197,23,.35);border-radius:7px;padding:6px 10px;color:#8a6e00;font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">⬇ Baixar agora</button>
-    <button onclick="document.getElementById('backup-toast').style.display='none'" style="background:transparent;border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Depois</button>
+    <button onclick="downloadBackup();document.getElementById('backup-toast').style.display='none'" style="flex:1;background:rgba(239,197,23,.12);border:1px solid rgba(239,197,23,.35);border-radius:7px;padding:6px 10px;color:#8a6e00;font-size:10px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">⬇ Baixar agora</button>
+    <button onclick="document.getElementById('backup-toast').style.display='none'" style="background:transparent;border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">Depois</button>
   </div>
 </div>
 
@@ -1485,7 +1485,7 @@ function pendTable(list, today) {
         ' data-pf="'+p.PrazoFatal+'"'+
         ' data-te="'+p.TipoEnvio+'"'+
         ' data-ob="'+encodeURIComponent(p.Obs||'')+'"'+
-        ' style="background:rgba(88,176,49,.15);border:1px solid rgba(88,176,49,.4);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Verdana,sans-serif">'+
+        ' style="background:rgba(88,176,49,.15);border:1px solid rgba(88,176,49,.4);border-radius:6px;padding:4px 10px;color:var(--green2);font-size:10px;font-weight:700;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">'+
         '✓ Marcar cumprido</button>'+
       '</td>'+
     '</tr>';
@@ -1549,7 +1549,7 @@ function renderCumpridos() {
       '<td>'+badge+'</td>'+
       '<td style="color:var(--gray);font-size:10px">'+(c.nextDate ? c.nextDate.split('-').reverse().join('/') : '—')+'</td>'+
       '<td><button class="undo-comp-btn" data-id="'+encodeURIComponent(c.id)+'" '+
-        'style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Verdana,sans-serif">Desfazer</button></td>'+
+        'style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--gray);font-size:10px;cursor:pointer;font-family:Calibri,'Gill Sans MT',Arial,sans-serif">Desfazer</button></td>'+
     '</tr>';
   }).join('');
 
