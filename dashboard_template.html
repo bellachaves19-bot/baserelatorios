@@ -1598,7 +1598,7 @@ function getThemeColor(varName) {
 function refreshChartColors() {
   var grid = getThemeColor('--chart-grid');
   var tick = getThemeColor('--chart-tick-val');
-  Chart.helpers.each(Chart.instances, function(chart) {
+  Object.values(Chart.instances || {}).forEach(function(chart) {
     if (!chart.options.scales) return;
     Object.values(chart.options.scales).forEach(function(scale) {
       if (scale.grid) scale.grid.color = grid;
