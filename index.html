@@ -375,7 +375,7 @@ tr.sent td:first-child{opacity:1}
   </div>
   <div class="hdr-right">
     <div class="badge"><span class="pulse"></span>Ativo</div>
-    <div class="badge badge-date">Atualização: 14/07/2026</div>
+    <div class="badge badge-date">Atualização: 15/07/2026</div>
     <button id="theme-toggle" onclick="toggleTheme()" title="Alternar tema" style="background:var(--toggle-bg);border:1px solid var(--toggle-border);color:var(--text-muted);width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0">🌙</button>
   </div>
 </header>
@@ -1598,7 +1598,7 @@ function getThemeColor(varName) {
 function refreshChartColors() {
   var grid = getThemeColor('--chart-grid');
   var tick = getThemeColor('--chart-tick-val');
-  Chart.helpers.each(Chart.instances, function(chart) {
+  Object.values(Chart.instances || {}).forEach(function(chart) {
     if (!chart.options.scales) return;
     Object.values(chart.options.scales).forEach(function(scale) {
       if (scale.grid) scale.grid.color = grid;
